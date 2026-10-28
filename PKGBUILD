@@ -8,7 +8,7 @@ license=('GPL-3.0-or-later')
 depends=(gtk4 libadwaita networkmanager libsecret polkit)
 makedepends=(rust pkgconf)
 options=('!lto' '!debug')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('SKIP')
 prepare() {
  cd "$srcdir/$pkgname-$pkgver"
