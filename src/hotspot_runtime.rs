@@ -91,7 +91,7 @@ impl HotspotRuntimeState {
 
 pub fn hotspot_runtime_state_path() -> PathBuf {
     std::env::var("HOME")
-        .map(|home| PathBuf::from(home).join(".local/share/adw-network/hotspot-runtime.json"))
+        .map(|home| PathBuf::from(home).join(".local/share/windoesnot-network/hotspot-runtime.json"))
         .unwrap_or_else(|_| PathBuf::from("/tmp/adw-network-hotspot-runtime.json"))
 }
 

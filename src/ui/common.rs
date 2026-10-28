@@ -5,6 +5,11 @@ use libadwaita::{self as adw, prelude::*};
 use std::time::Duration;
 
 pub fn show_toast(overlay: &adw::ToastOverlay, message: &str) {
+    let message = match message {
+        "Network change notifications unavailable; using periodic refresh" => crate::desktop::tr("Network change notifications unavailable; using periodic refresh"),
+        "Unable to retrieve data from NetworkManager – check your connection" => crate::desktop::tr("Unable to retrieve data from NetworkManager – check your connection"),
+        other => other,
+    };
     let toast = adw::Toast::new(message);
     toast.set_timeout(5);
     overlay.add_toast(toast);
@@ -32,7 +37,7 @@ pub fn set_busy(
 
     spinner.stop();
     spinner.set_visible(false);
-    status_label.set_text("");
+    status_label.set_text(crate::desktop::tr(""));
     status_label.set_visible(false);
     status_label.remove_css_class("dim-label");
     status_label.remove_css_class("large-text");

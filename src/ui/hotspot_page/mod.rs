@@ -172,7 +172,7 @@ impl HotspotPage {
         status_icon.add_css_class("hotspot-icon");
         status_icon.set_margin_bottom(8);
 
-        let status_label = gtk4::Label::new(Some("Hotspot is off"));
+        let status_label = gtk4::Label::new(Some(crate::desktop::tr("Hotspot is off")));
         status_label.add_css_class("title-2");
 
         let operation_spinner = gtk4::Spinner::new();
@@ -205,8 +205,8 @@ impl HotspotPage {
         action_box.add_css_class("hotspot-actions");
 
         let apply_button = gtk4::Button::builder()
-            .label("Apply Changes")
-            .tooltip_text("Save hotspot changes and apply them if the hotspot is active")
+            .label(crate::desktop::tr("Apply Changes"))
+            .tooltip_text(crate::desktop::tr("Save hotspot changes and apply them if the hotspot is active"))
             .css_classes(vec![
                 "suggested-action".to_string(),
                 "action-pill".to_string(),
@@ -216,7 +216,7 @@ impl HotspotPage {
         apply_button.set_sensitive(false);
 
         let qr_button = gtk4::Button::builder()
-            .tooltip_text("Show QR code for this hotspot")
+            .tooltip_text(crate::desktop::tr("Show QR code for this hotspot"))
             .css_classes(vec![
                 "action-pill".to_string(),
                 "qr-pill".to_string(),
@@ -237,7 +237,7 @@ impl HotspotPage {
             }
         };
         qr_icon.set_pixel_size(18);
-        let qr_label = gtk4::Label::new(Some("Show QR Code to Connect"));
+        let qr_label = gtk4::Label::new(Some(crate::desktop::tr("Show QR Code to Connect")));
         qr_label.set_xalign(0.0);
         qr_content.append(&qr_icon);
         qr_content.append(&qr_label);
@@ -248,7 +248,7 @@ impl HotspotPage {
         content.append(&action_box);
 
         // Switch
-        let hotspot_switch = adw::SwitchRow::builder().title("Hotspot").build();
+        let hotspot_switch = adw::SwitchRow::builder().title(crate::desktop::tr("Hotspot")).build();
 
         let switch_group = adw::PreferencesGroup::new();
         switch_group.add(&hotspot_switch);
@@ -256,15 +256,15 @@ impl HotspotPage {
 
         // Configuration Group
         let config_group = adw::PreferencesGroup::builder()
-            .title("Configuration")
+            .title(crate::desktop::tr("Configuration"))
             .margin_top(12)
             .build();
 
         let ssid_entry = adw::EntryRow::builder()
-            .title("Network Name (SSID)")
+            .title(crate::desktop::tr("Network Name (SSID)"))
             .build();
 
-        let password_entry = adw::PasswordEntryRow::builder().title("Password").build();
+        let password_entry = adw::PasswordEntryRow::builder().title(crate::desktop::tr("Password")).build();
 
         let generate_button = gtk4::Button::builder()
             .icon_name(icon_name(
@@ -272,7 +272,7 @@ impl HotspotPage {
                 &["view-refresh", "reload-symbolic"][..],
             ))
             .valign(gtk4::Align::Center)
-            .tooltip_text("Generate password")
+            .tooltip_text(crate::desktop::tr("Generate password"))
             .css_classes(vec!["flat".to_string(), "touch-target".to_string()])
             .build();
 
@@ -310,14 +310,14 @@ impl HotspotPage {
 
         // Reveal password row
         let reveal_switch = adw::SwitchRow::builder()
-            .title("Reveal password")
-            .subtitle("Show the hotspot password in plain text")
+            .title(crate::desktop::tr("Reveal password"))
+            .subtitle(crate::desktop::tr("Show the hotspot password in plain text"))
             .build();
         reveal_switch.set_tooltip_text(Some(
             "Password will be hidden automatically after 30 seconds for security",
         ));
 
-        let revealed_password_row = adw::ActionRow::builder().title("Password").build();
+        let revealed_password_row = adw::ActionRow::builder().title(crate::desktop::tr("Password")).build();
         let revealed_password_label = gtk4::Label::new(None);
         revealed_password_label.set_selectable(true);
         revealed_password_label.add_css_class("monospace");
@@ -325,27 +325,27 @@ impl HotspotPage {
         revealed_password_row.set_visible(false);
 
         let guest_password_row = adw::ActionRow::builder()
-            .title("Temporary Guest Password")
+            .title(crate::desktop::tr("Temporary Guest Password"))
             .subtitle(
                 "Temporarily replaces the main hotspot password until the next hotspot shutdown",
             )
             .build();
-        let guest_password_label = gtk4::Label::new(Some("Not generated"));
+        let guest_password_label = gtk4::Label::new(Some(crate::desktop::tr("Not generated")));
         guest_password_label.set_selectable(true);
         guest_password_label.add_css_class("monospace");
         guest_password_label.add_css_class("dim-label");
 
         let guest_actions = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
         let generate_guest_button = gtk4::Button::builder()
-            .label("Generate")
+            .label(crate::desktop::tr("Generate"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let clear_guest_button = gtk4::Button::builder()
-            .label("Clear")
+            .label(crate::desktop::tr("Clear"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let copy_guest_button = gtk4::Button::builder()
-            .label("Copy")
+            .label(crate::desktop::tr("Copy"))
             .css_classes(vec!["flat".to_string()])
             .build();
         guest_actions.append(&generate_guest_button);
@@ -354,7 +354,7 @@ impl HotspotPage {
         guest_password_row.add_suffix(&guest_password_label);
         guest_password_row.add_suffix(&guest_actions);
 
-        let length_row = adw::ActionRow::builder().title("Password length").build();
+        let length_row = adw::ActionRow::builder().title(crate::desktop::tr("Password length")).build();
         let length_adjustment = gtk4::Adjustment::new(
             16.0,
             MIN_PASSWORD_LEN as f64,
@@ -371,7 +371,7 @@ impl HotspotPage {
         length_spin.set_width_chars(3);
         length_row.add_suffix(&length_spin);
 
-        let strength_row = adw::ActionRow::builder().title("Password strength").build();
+        let strength_row = adw::ActionRow::builder().title(crate::desktop::tr("Password strength")).build();
         let strength_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
         strength_box.set_hexpand(true);
 
@@ -379,7 +379,7 @@ impl HotspotPage {
         strength_bar.set_hexpand(true);
         strength_bar.set_show_text(false);
 
-        let strength_label = gtk4::Label::new(Some("Weak"));
+        let strength_label = gtk4::Label::new(Some(crate::desktop::tr("Weak")));
         strength_label.set_xalign(0.0);
         strength_label.add_css_class("strength-label");
 
@@ -391,27 +391,27 @@ impl HotspotPage {
         // * Keep predefined hotspot bands while still supporting a custom path.
         let band_model = gtk4::StringList::new(&["2.4 GHz", "5 GHz", "Auto", "Custom"][..]);
         let band_combo = adw::ComboRow::builder()
-            .title("Frequency Band")
+            .title(crate::desktop::tr("Frequency Band"))
             .model(&band_model)
             .selected(2) // Auto by default
             .build();
         // * Allow a free-text band value when Custom is selected.
-        let custom_band_entry = adw::EntryRow::builder().title("Custom Band").build();
+        let custom_band_entry = adw::EntryRow::builder().title(crate::desktop::tr("Custom Band")).build();
         custom_band_entry.set_visible(false);
 
         // * Allow a free-text channel value when Custom is selected.
-        let channel_entry = adw::EntryRow::builder().title("Channel").build();
-        channel_entry.set_text("Auto");
+        let channel_entry = adw::EntryRow::builder().title(crate::desktop::tr("Channel")).build();
+        channel_entry.set_text(crate::desktop::tr("Auto"));
         channel_entry.set_visible(false);
 
         let hidden_switch = adw::SwitchRow::builder()
-            .title("Hidden Network")
-            .subtitle("Network won't be visible in WiFi lists")
+            .title(crate::desktop::tr("Hidden Network"))
+            .subtitle(crate::desktop::tr("Network won't be visible in WiFi lists"))
             .build();
 
         let interface_model = gtk4::StringList::new(&[][..]);
         let interface_combo = adw::ComboRow::builder()
-            .title("Network Interface")
+            .title(crate::desktop::tr("Network Interface"))
             .model(&interface_model)
             .selected(0)
             .build();
@@ -432,13 +432,13 @@ impl HotspotPage {
         content.append(&config_group);
 
         let advanced_group = adw::PreferencesGroup::builder()
-            .title("Advanced Hotspot Controls")
+            .title(crate::desktop::tr("Advanced Hotspot Controls"))
             .margin_top(12)
             .build();
 
         let download_limit_row = adw::ActionRow::builder()
-            .title("Download limit")
-            .subtitle("kbit/s, optional")
+            .title(crate::desktop::tr("Download limit"))
+            .subtitle(crate::desktop::tr("kbit/s, optional"))
             .build();
         let download_limit_adjustment =
             gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 100.0, 1000.0, 0.0);
@@ -450,8 +450,8 @@ impl HotspotPage {
         download_limit_row.add_suffix(&download_limit_spin);
 
         let upload_limit_row = adw::ActionRow::builder()
-            .title("Upload limit")
-            .subtitle("kbit/s, optional")
+            .title(crate::desktop::tr("Upload limit"))
+            .subtitle(crate::desktop::tr("kbit/s, optional"))
             .build();
         let upload_limit_adjustment =
             gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 100.0, 1000.0, 0.0);
@@ -463,8 +463,8 @@ impl HotspotPage {
         upload_limit_row.add_suffix(&upload_limit_spin);
 
         let device_limit_row = adw::ActionRow::builder()
-            .title("Maximum connected devices")
-            .subtitle("Optional. Extra devices are blocked on the next policy refresh.")
+            .title(crate::desktop::tr("Maximum connected devices"))
+            .subtitle(crate::desktop::tr("Optional. Extra devices are blocked on the next policy refresh."))
             .build();
         let device_limit_adjustment = gtk4::Adjustment::new(0.0, 0.0, 256.0, 1.0, 5.0, 0.0);
         let device_limit_spin = gtk4::SpinButton::builder()
@@ -476,25 +476,25 @@ impl HotspotPage {
 
         let mac_filter_model = gtk4::StringList::new(&["Disabled", "Allowlist", "Blocklist"]);
         let mac_filter_combo = adw::ComboRow::builder()
-            .title("MAC filtering")
-            .subtitle("Allow or block devices by MAC address")
+            .title(crate::desktop::tr("MAC filtering"))
+            .subtitle(crate::desktop::tr("Allow or block devices by MAC address"))
             .model(&mac_filter_model)
             .build();
 
         let client_rules_button = gtk4::Button::builder()
-            .label("Edit rules")
+            .label(crate::desktop::tr("Edit rules"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let client_rules_row = adw::ActionRow::builder()
-            .title("Per-device rules")
-            .subtitle("No device-specific hotspot rules")
+            .title(crate::desktop::tr("Per-device rules"))
+            .subtitle(crate::desktop::tr("No device-specific hotspot rules"))
             .build();
         client_rules_row.add_suffix(&client_rules_button);
         client_rules_row.set_activatable_widget(Some(&client_rules_button));
 
         let advanced_support_row = adw::ActionRow::builder()
-            .title("System support")
-            .subtitle("Checking for tc and nftables...")
+            .title(crate::desktop::tr("System support"))
+            .subtitle(crate::desktop::tr("Checking for tc and nftables..."))
             .build();
 
         advanced_group.add(&download_limit_row);
@@ -1007,7 +1007,7 @@ impl HotspotPage {
                 );
             }
             None => {
-                self.guest_password_label.set_text("Not generated");
+                self.guest_password_label.set_text(crate::desktop::tr("Not generated"));
                 self.guest_password_label.add_css_class("dim-label");
                 self.guest_password_row.set_subtitle(
                     "Generate a temporary password when you want to share access for one hotspot session",
@@ -1282,7 +1282,7 @@ impl HotspotPage {
                     self.revealed_password_label.set_text(&password);
                     update_strength_indicator(&password, &self.strength_label, &self.strength_bar);
                     self.band_combo.set_selected(2);
-                    self.custom_band_entry.set_text("");
+                    self.custom_band_entry.set_text(crate::desktop::tr(""));
                     self.channel_entry.set_text(&config.channel);
                     self.update_custom_band_channel_visibility();
                     self.hidden_switch.set_active(false);
@@ -1549,24 +1549,24 @@ impl HotspotPage {
         self.apply_button
             .set_sensitive(self.config_dirty.get() && !self.operation_in_progress.get());
         if !self.wifi_present.get() {
-            self.status_label.set_text("No Wi-Fi adapter found");
+            self.status_label.set_text(crate::desktop::tr("No Wi-Fi adapter found"));
             self.status_label.remove_css_class("hotspot-active-header");
             self.status_icon.remove_css_class("hotspot-pulse");
             self.status_subtitle.set_visible(false);
             self.status_meta.set_visible(false);
-            self.status_subtitle.set_text("");
-            self.status_meta.set_text("");
+            self.status_subtitle.set_text(crate::desktop::tr(""));
+            self.status_meta.set_text(crate::desktop::tr(""));
             self.qr_button.set_visible(false);
             return;
         }
         if !self.wifi_enabled.get() {
-            self.status_label.set_text("Wi-Fi is off");
+            self.status_label.set_text(crate::desktop::tr("Wi-Fi is off"));
             self.status_label.remove_css_class("hotspot-active-header");
             self.status_icon.remove_css_class("hotspot-pulse");
             self.status_subtitle.set_visible(false);
             self.status_meta.set_visible(false);
-            self.status_subtitle.set_text("");
-            self.status_meta.set_text("");
+            self.status_subtitle.set_text(crate::desktop::tr(""));
+            self.status_meta.set_text(crate::desktop::tr(""));
             self.qr_button.set_visible(false);
             return;
         }
@@ -1575,7 +1575,7 @@ impl HotspotPage {
 
         if active {
             // Update status
-            self.status_label.set_text("Hotspot is active");
+            self.status_label.set_text(crate::desktop::tr("Hotspot is active"));
             self.status_label.add_css_class("hotspot-active-header");
             self.status_icon.add_css_class("hotspot-pulse");
             self.status_subtitle.set_visible(true);
@@ -1585,13 +1585,13 @@ impl HotspotPage {
             self.refresh_status_details();
         } else {
             // Update status
-            self.status_label.set_text("Hotspot is off");
+            self.status_label.set_text(crate::desktop::tr("Hotspot is off"));
             self.status_label.remove_css_class("hotspot-active-header");
             self.status_icon.remove_css_class("hotspot-pulse");
             self.status_subtitle.set_visible(false);
             self.status_meta.set_visible(false);
-            self.status_subtitle.set_text("");
-            self.status_meta.set_text("");
+            self.status_subtitle.set_text(crate::desktop::tr(""));
+            self.status_meta.set_text(crate::desktop::tr(""));
 
             // Hide QR button
             self.qr_button.set_visible(false);
@@ -1764,7 +1764,7 @@ impl HotspotPage {
             self.advanced_support_row.set_subtitle(&reason);
         } else {
             self.advanced_support_row
-                .set_subtitle("tc and nftables are available");
+                .set_subtitle(crate::desktop::tr("tc and nftables are available"));
         }
         self.download_limit_spin.set_sensitive(support.tc_available);
         self.upload_limit_spin.set_sensitive(support.tc_available);
@@ -1794,7 +1794,7 @@ impl HotspotPage {
             .build();
 
         let add_button = gtk4::Button::builder()
-            .label("Add rule")
+            .label(crate::desktop::tr("Add rule"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
@@ -1921,11 +1921,11 @@ fn repopulate_client_rule_rows(
             .build();
 
         let edit_btn = gtk4::Button::builder()
-            .label("Edit")
+            .label(crate::desktop::tr("Edit"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let delete_btn = gtk4::Button::builder()
-            .label("Delete")
+            .label(crate::desktop::tr("Delete"))
             .css_classes(vec!["flat".to_string(), "destructive-action".to_string()])
             .build();
 
@@ -1985,15 +1985,15 @@ async fn show_single_client_rule_editor(
     parent_widget: &gtk4::Widget,
     existing: Option<HotspotClientRule>,
 ) -> anyhow::Result<Option<HotspotClientRule>> {
-    let mac_entry = adw::EntryRow::builder().title("MAC address").build();
-    let display_name_entry = adw::EntryRow::builder().title("Device name").build();
+    let mac_entry = adw::EntryRow::builder().title(crate::desktop::tr("MAC address")).build();
+    let display_name_entry = adw::EntryRow::builder().title(crate::desktop::tr("Device name")).build();
     let blocked_switch = adw::SwitchRow::builder()
-        .title("Block this device")
-        .subtitle("Drop hotspot traffic for this MAC address")
+        .title(crate::desktop::tr("Block this device"))
+        .subtitle(crate::desktop::tr("Drop hotspot traffic for this MAC address"))
         .build();
     let download_row = adw::ActionRow::builder()
-        .title("Download limit")
-        .subtitle("kbit/s, optional")
+        .title(crate::desktop::tr("Download limit"))
+        .subtitle(crate::desktop::tr("kbit/s, optional"))
         .build();
     let download_adjustment = gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 100.0, 1000.0, 0.0);
     let download_spin = gtk4::SpinButton::builder()
@@ -2004,8 +2004,8 @@ async fn show_single_client_rule_editor(
     download_row.add_suffix(&download_spin);
 
     let upload_row = adw::ActionRow::builder()
-        .title("Upload limit")
-        .subtitle("kbit/s, optional")
+        .title(crate::desktop::tr("Upload limit"))
+        .subtitle(crate::desktop::tr("kbit/s, optional"))
         .build();
     let upload_adjustment = gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 100.0, 1000.0, 0.0);
     let upload_spin = gtk4::SpinButton::builder()
@@ -2016,8 +2016,8 @@ async fn show_single_client_rule_editor(
     upload_row.add_suffix(&upload_spin);
 
     let time_row = adw::ActionRow::builder()
-        .title("Connected time limit")
-        .subtitle("minutes in the current quota window, optional")
+        .title(crate::desktop::tr("Connected time limit"))
+        .subtitle(crate::desktop::tr("minutes in the current quota window, optional"))
         .build();
     let time_adjustment = gtk4::Adjustment::new(0.0, 0.0, 100_000.0, 5.0, 60.0, 0.0);
     let time_spin = gtk4::SpinButton::builder()
@@ -2028,8 +2028,8 @@ async fn show_single_client_rule_editor(
     time_row.add_suffix(&time_spin);
 
     let download_quota_row = adw::ActionRow::builder()
-        .title("Download quota")
-        .subtitle("MB in the current quota window, optional")
+        .title(crate::desktop::tr("Download quota"))
+        .subtitle(crate::desktop::tr("MB in the current quota window, optional"))
         .build();
     let download_quota_adjustment = gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 50.0, 500.0, 0.0);
     let download_quota_spin = gtk4::SpinButton::builder()
@@ -2040,8 +2040,8 @@ async fn show_single_client_rule_editor(
     download_quota_row.add_suffix(&download_quota_spin);
 
     let upload_quota_row = adw::ActionRow::builder()
-        .title("Upload quota")
-        .subtitle("MB in the current quota window, optional")
+        .title(crate::desktop::tr("Upload quota"))
+        .subtitle(crate::desktop::tr("MB in the current quota window, optional"))
         .build();
     let upload_quota_adjustment = gtk4::Adjustment::new(0.0, 0.0, 1_000_000.0, 50.0, 500.0, 0.0);
     let upload_quota_spin = gtk4::SpinButton::builder()
@@ -2051,8 +2051,8 @@ async fn show_single_client_rule_editor(
         .build();
     upload_quota_row.add_suffix(&upload_quota_spin);
 
-    let blocked_domains_entry = adw::EntryRow::builder().title("Blocked sites").build();
-    blocked_domains_entry.set_text("");
+    let blocked_domains_entry = adw::EntryRow::builder().title(crate::desktop::tr("Blocked sites")).build();
+    blocked_domains_entry.set_text(crate::desktop::tr(""));
     blocked_domains_entry.set_tooltip_text(Some(
         "Comma-separated domains, for example: youtube.com, instagram.com",
     ));

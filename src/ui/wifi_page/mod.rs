@@ -73,7 +73,7 @@ impl WifiPage {
         content.set_margin_end(16);
 
         // WiFi Toggle
-        let wifi_switch = adw::SwitchRow::builder().title("Use Wi-Fi").build();
+        let wifi_switch = adw::SwitchRow::builder().title(crate::desktop::tr("Use Wi-Fi")).build();
 
         let switch_group = adw::PreferencesGroup::new();
         switch_group.add(&wifi_switch);
@@ -96,13 +96,13 @@ impl WifiPage {
         filter_row.set_halign(gtk4::Align::Start);
         filter_row.add_css_class("filter-row");
 
-        let filter_all = gtk4::ToggleButton::builder().label("All").build();
+        let filter_all = gtk4::ToggleButton::builder().label(crate::desktop::tr("All")).build();
         filter_all.add_css_class("toggle");
-        let filter_24 = gtk4::ToggleButton::builder().label("2.4 GHz").build();
+        let filter_24 = gtk4::ToggleButton::builder().label(crate::desktop::tr("2.4 GHz")).build();
         filter_24.add_css_class("toggle");
-        let filter_5 = gtk4::ToggleButton::builder().label("5 GHz").build();
+        let filter_5 = gtk4::ToggleButton::builder().label(crate::desktop::tr("5 GHz")).build();
         filter_5.add_css_class("toggle");
-        let filter_saved = gtk4::ToggleButton::builder().label("Saved").build();
+        let filter_saved = gtk4::ToggleButton::builder().label(crate::desktop::tr("Saved")).build();
         filter_saved.add_css_class("toggle");
 
         filter_24.set_group(Some(&filter_all));
@@ -123,7 +123,7 @@ impl WifiPage {
         header_box.set_margin_top(12);
 
         let networks_label = gtk4::Label::builder()
-            .label("Networks")
+            .label(crate::desktop::tr("Networks"))
             .halign(gtk4::Align::Start)
             .hexpand(true)
             .build();
@@ -140,8 +140,8 @@ impl WifiPage {
         operation_status_label.set_visible(false);
 
         let hidden_network_button = gtk4::Button::builder()
-            .label("Hidden Network")
-            .tooltip_text("Connect to a hidden Wi-Fi network")
+            .label(crate::desktop::tr("Hidden Network"))
+            .tooltip_text(crate::desktop::tr("Connect to a hidden Wi-Fi network"))
             .css_classes(vec!["flat".to_string(), "touch-target".to_string()])
             .build();
 
@@ -150,7 +150,7 @@ impl WifiPage {
                 "view-refresh-symbolic",
                 &["view-refresh", "reload-symbolic"][..],
             ))
-            .tooltip_text("Refresh networks")
+            .tooltip_text(crate::desktop::tr("Refresh networks"))
             .css_classes(vec![
                 "flat".to_string(),
                 "circular".to_string(),
@@ -179,8 +179,8 @@ impl WifiPage {
         connected_ssid.set_hexpand(true);
 
         let details_button = gtk4::Button::builder()
-            .label("Details")
-            .tooltip_text("Connection details")
+            .label(crate::desktop::tr("Details"))
+            .tooltip_text(crate::desktop::tr("Connection details"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
@@ -205,14 +205,14 @@ impl WifiPage {
             .build();
         let details_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
 
-        let details_ip = gtk4::Label::new(Some("IP: —"));
+        let details_ip = gtk4::Label::new(Some(crate::desktop::tr("IP: —")));
         details_ip.set_xalign(0.0);
         details_ip.add_css_class("detail-label");
         details_ip.add_css_class("detail-ip");
-        let details_dns = gtk4::Label::new(Some("DNS: —"));
+        let details_dns = gtk4::Label::new(Some(crate::desktop::tr("DNS: —")));
         details_dns.set_xalign(0.0);
         details_dns.add_css_class("detail-label");
-        let details_speed = gtk4::Label::new(Some("Speed: —"));
+        let details_speed = gtk4::Label::new(Some(crate::desktop::tr("Speed: —")));
         details_speed.set_xalign(0.0);
         details_speed.add_css_class("detail-label");
 
@@ -227,7 +227,7 @@ impl WifiPage {
         content.append(&connected_card);
 
         // Known Networks section
-        let known_header = gtk4::Label::new(Some("Known Networks"));
+        let known_header = gtk4::Label::new(Some(crate::desktop::tr("Known Networks")));
         known_header.add_css_class("section-header");
         known_header.set_xalign(0.0);
         known_header.set_margin_top(8);
@@ -241,7 +241,7 @@ impl WifiPage {
         known_list.set_visible(false);
 
         // Other Networks section
-        let other_header = gtk4::Label::new(Some("Other Networks"));
+        let other_header = gtk4::Label::new(Some(crate::desktop::tr("Other Networks")));
         other_header.add_css_class("section-header");
         other_header.set_xalign(0.0);
         other_header.set_margin_top(8);
@@ -263,19 +263,19 @@ impl WifiPage {
                     "network-wireless-offline-symbolic",
                 ][..],
             ))
-            .title("No Networks Found")
-            .description("Turn on Wi-Fi or refresh to scan for networks")
+            .title(crate::desktop::tr("No Networks Found"))
+            .description(crate::desktop::tr("Turn on Wi-Fi or refresh to scan for networks"))
             .build();
         empty_state.set_visible(false);
 
         let empty_action = gtk4::Button::builder()
-            .label("Turn On Wi-Fi")
+            .label(crate::desktop::tr("Turn On Wi-Fi"))
             .css_classes(vec!["suggested-action".to_string()])
             .build();
         empty_action.set_visible(false);
 
         let empty_sys_action = gtk4::Button::builder()
-            .label("Open System Settings")
+            .label(crate::desktop::tr("Open System Settings"))
             .css_classes(vec!["suggested-action".to_string()])
             .build();
         empty_sys_action.set_visible(false);
@@ -903,13 +903,13 @@ impl WifiPage {
         if !show_known && !show_other && connected.is_none() {
             let wifi_enabled = self.wifi_switch.is_active();
             if wifi_enabled {
-                self.empty_state.set_title("No Networks Found");
+                self.empty_state.set_title(crate::desktop::tr("No Networks Found"));
                 self.empty_state
                     .set_description(Some("Refresh or wait for networks to appear"));
                 self.empty_action.set_visible(false);
                 self.empty_sys_action.set_visible(true);
             } else {
-                self.empty_state.set_title("Wi-Fi is Off");
+                self.empty_state.set_title(crate::desktop::tr("Wi-Fi is Off"));
                 self.empty_state
                     .set_description(Some("Turn on Wi-Fi to scan for networks"));
                 self.empty_action.set_visible(true);
@@ -970,9 +970,9 @@ impl WifiPage {
                 details_speed.set_text(&format!("Speed: {}", speed));
             });
         } else {
-            self.connected_details_ip.set_text("IP: —");
-            self.connected_details_dns.set_text("DNS: —");
-            self.connected_details_speed.set_text("Speed: —");
+            self.connected_details_ip.set_text(crate::desktop::tr("IP: —"));
+            self.connected_details_dns.set_text(crate::desktop::tr("DNS: —"));
+            self.connected_details_speed.set_text(crate::desktop::tr("Speed: —"));
         }
     }
 
@@ -1095,7 +1095,7 @@ impl WifiPage {
         if network.connected {
             // Disconnect button
             let disconnect_btn = gtk4::Button::builder()
-                .label("Disconnect")
+                .label(crate::desktop::tr("Disconnect"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
 
@@ -1115,7 +1115,7 @@ impl WifiPage {
         } else {
             // Connect button
             let connect_btn = gtk4::Button::builder()
-                .label("Connect")
+                .label(crate::desktop::tr("Connect"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
 
@@ -1138,7 +1138,7 @@ impl WifiPage {
 
         // Show QR code (only if a saved password exists)
         let qr_btn = gtk4::Button::builder()
-            .label("Show QR Code")
+            .label(crate::desktop::tr("Show QR Code"))
             .css_classes(vec!["flat".to_string()])
             .build();
         qr_btn.set_visible(false);
@@ -1170,7 +1170,7 @@ impl WifiPage {
 
         // Show Network Info button
         let info_btn = gtk4::Button::builder()
-            .label("Network Details")
+            .label(crate::desktop::tr("Network Details"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
@@ -1204,7 +1204,7 @@ impl WifiPage {
         ));
         forget_icon.set_pixel_size(22);
         forget_icon.add_css_class("forget-icon");
-        let forget_label = gtk4::Label::new(Some("Forget Network"));
+        let forget_label = gtk4::Label::new(Some(crate::desktop::tr("Forget Network")));
         forget_label.set_xalign(0.0);
         forget_content.append(&forget_icon);
         forget_content.append(&forget_label);
@@ -1271,20 +1271,20 @@ impl WifiPage {
 
     async fn show_hidden_network_dialog(&self) {
         let ssid_entry = adw::EntryRow::builder()
-            .title("Network Name (SSID)")
+            .title(crate::desktop::tr("Network Name (SSID)"))
             .activates_default(true)
             .build();
 
         let security_model =
             gtk4::StringList::new(&["WPA/WPA2 Personal", "WPA3 Personal", "WEP", "Open"][..]);
         let security_row = adw::ComboRow::builder()
-            .title("Security")
+            .title(crate::desktop::tr("Security"))
             .model(&security_model)
             .selected(0)
             .build();
 
         let password_entry = adw::PasswordEntryRow::builder()
-            .title("Password")
+            .title(crate::desktop::tr("Password"))
             .activates_default(true)
             .build();
 
@@ -1310,7 +1310,7 @@ impl WifiPage {
             let password_required = row.selected() != 3;
             password_entry_visibility.set_visible(password_required);
             if !password_required {
-                password_entry_visibility.set_text("");
+                password_entry_visibility.set_text(crate::desktop::tr(""));
             }
         });
 
@@ -1365,7 +1365,7 @@ impl WifiPage {
 
     async fn show_password_dialog_for_ssid(&self, ssid: &str, security_type: Option<&str>) {
         let password_entry = adw::PasswordEntryRow::builder()
-            .title("Password")
+            .title(crate::desktop::tr("Password"))
             .activates_default(true)
             .build();
 
@@ -1580,7 +1580,7 @@ impl WifiPage {
         }
 
         let sudo_entry = adw::PasswordEntryRow::builder()
-            .title("sudo password")
+            .title(crate::desktop::tr("sudo password"))
             .activates_default(true)
             .build();
 
@@ -1632,7 +1632,7 @@ impl WifiPage {
         let is_saved = nm::is_network_saved(&network.ssid).await.unwrap_or(false);
 
         let dialog = adw::Dialog::builder()
-            .title("Network Details")
+            .title(crate::desktop::tr("Network Details"))
             .content_width(520)
             .content_height(700)
             .build();
@@ -1656,7 +1656,7 @@ impl WifiPage {
                 "go-previous-symbolic",
                 &["go-previous", "go-back-symbolic"][..],
             ))
-            .tooltip_text("Back")
+            .tooltip_text(crate::desktop::tr("Back"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let dialog_close = dialog.clone();
@@ -1783,11 +1783,11 @@ impl WifiPage {
 
         // Auto-connect (only for saved networks)
         if is_saved {
-            let auto_group = adw::PreferencesGroup::builder().title("Connection").build();
+            let auto_group = adw::PreferencesGroup::builder().title(crate::desktop::tr("Connection")).build();
 
             let auto_row = adw::SwitchRow::builder()
-                .title("Connect automatically")
-                .subtitle("Automatically connect to this network when available")
+                .title(crate::desktop::tr("Connect automatically"))
+                .subtitle(crate::desktop::tr("Automatically connect to this network when available"))
                 .build();
 
             // Initialize state
@@ -1816,9 +1816,9 @@ impl WifiPage {
         }
 
         // Custom DNS (active connection only)
-        let dns_group = adw::PreferencesGroup::builder().title("Custom DNS").build();
+        let dns_group = adw::PreferencesGroup::builder().title(crate::desktop::tr("Custom DNS")).build();
 
-        let dns_entry = adw::EntryRow::builder().title("DNS servers").build();
+        let dns_entry = adw::EntryRow::builder().title(crate::desktop::tr("DNS servers")).build();
 
         if let Some(i) = info.as_ref() {
             if !i.dns.is_empty() {
@@ -1826,16 +1826,16 @@ impl WifiPage {
             }
         }
 
-        let search_entry = adw::EntryRow::builder().title("Search domains").build();
+        let search_entry = adw::EntryRow::builder().title(crate::desktop::tr("Search domains")).build();
 
         let apply_button = gtk4::Button::builder()
-            .label("Apply")
+            .label(crate::desktop::tr("Apply"))
             .css_classes(vec!["suggested-action".to_string()])
             .build();
         apply_button.set_sensitive(network.connected);
 
         let apply_row = adw::ActionRow::builder()
-            .title("Apply to active connection")
+            .title(crate::desktop::tr("Apply to active connection"))
             .subtitle(if network.connected {
                 "Reapply the connection to use custom DNS"
             } else {
@@ -1981,7 +1981,7 @@ impl WifiPage {
         info_box.append(&info_section);
 
         // Network details section
-        let details_header = gtk4::Label::new(Some("Network details"));
+        let details_header = gtk4::Label::new(Some(crate::desktop::tr("Network details")));
         details_header.set_xalign(0.0);
         details_header.set_margin_top(8);
         details_header.set_margin_bottom(8);
@@ -2072,21 +2072,21 @@ impl WifiPage {
         // * User enters sudo password → we reveal the wifi password with copy button.
         if is_saved && network.secured {
             let password_group = adw::PreferencesGroup::builder()
-                .title("Password")
+                .title(crate::desktop::tr("Password"))
                 .build();
 
             // ! Revealed password is stored only in memory — never written to disk here
             let revealed_password: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
 
             let password_row = adw::PasswordEntryRow::builder()
-                .title("Wi-Fi Password")
+                .title(crate::desktop::tr("Wi-Fi Password"))
                 .editable(false)
                 .build();
             password_row.set_sensitive(false);
 
             let copy_btn = gtk4::Button::builder()
                 .icon_name("edit-copy-symbolic")
-                .tooltip_text("Copy password")
+                .tooltip_text(crate::desktop::tr("Copy password"))
                 .css_classes(vec!["flat".to_string()])
                 .valign(gtk4::Align::Center)
                 .build();
@@ -2094,14 +2094,14 @@ impl WifiPage {
             password_row.add_suffix(&copy_btn);
 
             let reveal_btn = gtk4::Button::builder()
-                .label("Reveal")
+                .label(crate::desktop::tr("Reveal"))
                 .css_classes(vec!["suggested-action".to_string()])
                 .valign(gtk4::Align::Center)
                 .build();
 
             let action_row = adw::ActionRow::builder()
-                .title("Reveal saved password")
-                .subtitle("Requires sudo authentication")
+                .title(crate::desktop::tr("Reveal saved password"))
+                .subtitle(crate::desktop::tr("Requires sudo authentication"))
                 .build();
             action_row.add_suffix(&reveal_btn);
             action_row.set_activatable_widget(Some(&reveal_btn));
@@ -2126,10 +2126,10 @@ impl WifiPage {
                 // If already revealed, hide again
                 if revealed_ref.borrow().is_some() {
                     *revealed_ref.borrow_mut() = None;
-                    password_row_reveal.set_text("");
+                    password_row_reveal.set_text(crate::desktop::tr(""));
                     password_row_reveal.set_sensitive(false);
                     copy_btn_reveal.set_visible(false);
-                    btn.set_label("Reveal");
+                    btn.set_label(crate::desktop::tr("Reveal"));
                     return;
                 }
 
@@ -2148,7 +2148,7 @@ impl WifiPage {
                             copy_btn.set_visible(true);
                             *revealed.borrow_mut() = Some(wifi_pass);
                             if let Some(btn) = btn_weak.upgrade() {
-                                btn.set_label("Hide");
+                                btn.set_label(crate::desktop::tr("Hide"));
                             }
                         }
                         None => {

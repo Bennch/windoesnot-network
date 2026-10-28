@@ -10,7 +10,8 @@ use serde::Serialize;
 use log::{debug, info, warn};
 
 pub const HOTSPOT_UNSUPPORTED_TOAST: &str = "This Wi-Fi adapter does not support hotspot mode";
-const HOTSPOT_NFT_TABLE: &str = "adw_network_hotspot";
+pub const CONNECTION_ID: &str = "WinDoesNot Hotspot";
+const HOTSPOT_NFT_TABLE: &str = "windoesnot_hotspot";
 
 fn validate_interface_name(name: &str) -> bool {
     !name.is_empty()
@@ -237,7 +238,7 @@ pub async fn create_hotspot_on(config: &crate::config::HotspotConfig, iface: &st
         Err(_) => return Err(anyhow!("Timed out listing active connections")),
     };
     for connection in active {
-        if connection.id == "Hotspot" {
+        if connection.id == crate::hotspot::CONNECTION_ID {
             continue;
         }
         if connection.conn_type != "802-11-wireless" && connection.conn_type != "wifi" {
@@ -247,7 +248,7 @@ pub async fn create_hotspot_on(config: &crate::config::HotspotConfig, iface: &st
             let _ = tokio::time::timeout(Duration::from_secs(3), client.deactivate_connection_by_uuid(&connection.uuid)).await;
         }
     }
-    let _ = tokio::time::timeout(Duration::from_secs(3), client.deactivate_connection_by_id("Hotspot")).await;
+    let _ = tokio::time::timeout(Duration::from_secs(3), client.deactivate_connection_by_id(crate::hotspot::CONNECTION_ID)).await;
     debug!("deactivated conflicting connections: {} ms", start.elapsed().as_millis());
 
     // Upsert hotspot connection with timeout
@@ -264,7 +265,7 @@ pub async fn create_hotspot_on(config: &crate::config::HotspotConfig, iface: &st
     if !is_hotspot_active().await.unwrap_or(false) {
         let activation = tokio::time::timeout(
             Duration::from_secs(6),
-            client.activate_connection_by_id("Hotspot", Some(iface)),
+            client.activate_connection_by_id(crate::hotspot::CONNECTION_ID, Some(iface)),
         )
         .await;
         match activation {
@@ -307,8 +308,8 @@ pub async fn stop_hotspot() -> Result<()> {
 
     let iface = get_hotspot_interface().await.ok().flatten();
     let client = crate::nm::dbus_client().await?;
-    client.deactivate_connection_by_id("Hotspot").await?;
-    client.delete_connection_by_id("Hotspot").await?;
+    client.deactivate_connection_by_id(crate::hotspot::CONNECTION_ID).await?;
+    client.delete_connection_by_id(crate::hotspot::CONNECTION_ID).await?;
     if let Some(iface) = iface.as_deref() {
         cleanup_runtime_rules(iface).await.ok();
     }

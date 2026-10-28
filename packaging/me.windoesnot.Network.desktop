@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=WinDoesNot Network
+Name[de]=WinDoesNot Netzwerk
+Comment=Manage Network devices and connections
+Comment[de]=Netzwerkgeräte und Verbindungen verwalten
+Exec=windoesnot-network
+Icon=me.windoesnot.Network
+Terminal=false
+Categories=Network;
+StartupNotify=true

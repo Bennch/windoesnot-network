@@ -72,7 +72,7 @@ impl EthernetPage {
         content.set_margin_end(16);
 
         // Ethernet Toggle
-        let ethernet_switch = adw::SwitchRow::builder().title("Use Ethernet").build();
+        let ethernet_switch = adw::SwitchRow::builder().title(crate::desktop::tr("Use Ethernet")).build();
 
         let switch_group = adw::PreferencesGroup::new();
         switch_group.add(&ethernet_switch);
@@ -83,7 +83,7 @@ impl EthernetPage {
         header_box.set_margin_top(12);
 
         let title = gtk4::Label::builder()
-            .label("Ethernet")
+            .label(crate::desktop::tr("Ethernet"))
             .halign(gtk4::Align::Start)
             .hexpand(true)
             .build();
@@ -103,7 +103,7 @@ impl EthernetPage {
                 "view-refresh-symbolic",
                 &["view-refresh", "reload-symbolic"][..],
             ))
-            .tooltip_text("Refresh wired connections")
+            .tooltip_text(crate::desktop::tr("Refresh wired connections"))
             .css_classes(vec![
                 "flat".to_string(),
                 "circular".to_string(),
@@ -150,8 +150,8 @@ impl EthernetPage {
                 "network-wired-symbolic",
                 &["network-wired", "network-transmit-receive-symbolic"][..],
             ))
-            .title("No Wired Connections")
-            .description("Connect an ethernet cable or create a wired profile")
+            .title(crate::desktop::tr("No Wired Connections"))
+            .description(crate::desktop::tr("Connect an ethernet cable or create a wired profile"))
             .build();
         empty_state.set_visible(false);
 
@@ -333,7 +333,7 @@ impl EthernetPage {
     fn show_disabled_state(&self) {
         self.clear_connections();
         self.empty_state.set_visible(true);
-        self.empty_state.set_title("Ethernet is off");
+        self.empty_state.set_title(crate::desktop::tr("Ethernet is off"));
         self.empty_state
             .set_description(Some("Turn on Ethernet to manage wired connections"));
     }
@@ -368,7 +368,7 @@ impl EthernetPage {
 
         if !show_list && connected.is_none() {
             self.empty_state.set_visible(true);
-            self.empty_state.set_title("No Wired Connections");
+            self.empty_state.set_title(crate::desktop::tr("No Wired Connections"));
             self.empty_state
                 .set_description(Some("Connect an ethernet cable or create a wired profile"));
         }
@@ -492,7 +492,7 @@ impl EthernetPage {
 
         if connection.active {
             let disconnect_btn = gtk4::Button::builder()
-                .label("Disconnect")
+                .label(crate::desktop::tr("Disconnect"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
 
@@ -512,7 +512,7 @@ impl EthernetPage {
             menu_box.append(&disconnect_btn);
         } else {
             let connect_btn = gtk4::Button::builder()
-                .label("Connect")
+                .label(crate::desktop::tr("Connect"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
 
@@ -533,7 +533,7 @@ impl EthernetPage {
         }
 
         let details_btn = gtk4::Button::builder()
-            .label("Connection Details")
+            .label(crate::desktop::tr("Connection Details"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
@@ -558,7 +558,7 @@ impl EthernetPage {
         auto_row.set_margin_start(12);
         auto_row.set_margin_end(12);
 
-        let auto_label = gtk4::Label::new(Some("Auto-connect"));
+        let auto_label = gtk4::Label::new(Some(crate::desktop::tr("Auto-connect")));
         auto_label.set_xalign(0.0);
         auto_label.set_hexpand(true);
 
@@ -639,7 +639,7 @@ impl EthernetPage {
         let info = nm::get_network_info(&connection.name).await.ok();
 
         let dialog = adw::Dialog::builder()
-            .title("Connection Details")
+            .title(crate::desktop::tr("Connection Details"))
             .content_width(520)
             .content_height(700)
             .build();
@@ -663,7 +663,7 @@ impl EthernetPage {
                 "go-previous-symbolic",
                 &["go-previous", "go-back-symbolic"][..],
             ))
-            .tooltip_text("Back")
+            .tooltip_text(crate::desktop::tr("Back"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let dialog_close = dialog.clone();
@@ -779,7 +779,7 @@ impl EthernetPage {
         info_box.append(&info_section);
 
         // Network details section
-        let details_header = gtk4::Label::new(Some("Network details"));
+        let details_header = gtk4::Label::new(Some(crate::desktop::tr("Network details")));
         details_header.set_xalign(0.0);
         details_header.set_margin_top(8);
         details_header.set_margin_bottom(8);

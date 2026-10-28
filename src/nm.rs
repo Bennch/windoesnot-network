@@ -946,7 +946,7 @@ pub async fn disconnect_network(ssid: &str) -> Result<()> {
 async fn map_saved_connections(profiles: Vec<DbusConnectionProfile>) -> Vec<SavedConnection> {
     profiles
         .into_iter()
-        .filter(|c| c.conn_type == "802-11-wireless" && c.id != "Hotspot")
+        .filter(|c| c.conn_type == "802-11-wireless" && c.id != crate::hotspot::CONNECTION_ID)
         .map(|c| SavedConnection {
             uuid: c.uuid,
             ssid: c.id,
@@ -1470,27 +1470,11 @@ pub async fn get_active_hotspot_connection() -> Result<Option<DbusActiveConnecti
     let client = dbus_client().await?;
     let active = client.list_active_connections().await?;
 
-    for connection in active {
-        if connection.state != NM_ACTIVE_CONNECTION_STATE_ACTIVATED {
-            continue;
-        }
-
-        if connection.id == "Hotspot" {
-            return Ok(Some(connection));
-        }
-
-        if connection.conn_type != "802-11-wireless" && connection.conn_type != "wifi" {
-            continue;
-        }
-
-        if let Ok(Some(profile)) = client.find_connection_by_uuid(&connection.uuid).await {
-            if connection_profile_is_hotspot(&profile) {
-                return Ok(Some(connection));
-            }
-        }
-    }
-
-    Ok(None)
+    // Only manage hotspots explicitly created by this application.
+    // A pre-existing connection in AP mode belongs to its current owner.
+    Ok(active.into_iter().find(|connection|
+        connection.id == crate::hotspot::CONNECTION_ID
+            && connection.state == NM_ACTIVE_CONNECTION_STATE_ACTIVATED))
 }
 
 pub async fn is_hotspot_active() -> Result<bool> {

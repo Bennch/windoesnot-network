@@ -22,8 +22,9 @@ pub mod secrets;
 pub mod state;
 mod ui;
 mod window;
+mod desktop;
 
-const APP_ID: &str = "com.github.adw-network";
+const APP_ID: &str = "me.windoesnot.Network";
 
 fn normalize_gsk_renderer_env() {
     // * Critical for wlroots/Hyprland — ngl renderer crashes on some compositors
@@ -35,7 +36,7 @@ fn normalize_gsk_renderer_env() {
 
 fn setup_logging() {
     let log_path = std::env::var("HOME")
-        .map(|home| std::path::PathBuf::from(home).join(".local/share/adw-network"))
+        .map(|home| std::path::PathBuf::from(home).join(".local/share/windoesnot-network"))
         .unwrap_or_else(|_| std::path::PathBuf::from("/tmp"));
 
     let _ = std::fs::create_dir_all(&log_path);
@@ -86,37 +87,6 @@ fn setup_logging() {
     }
 }
 
-fn register_cleanup_signals() {
-    use tokio::signal::unix::{signal, SignalKind};
-
-    let mut sigterm = signal(SignalKind::terminate()).expect("Failed to register SIGTERM handler");
-    let mut sigint = signal(SignalKind::interrupt()).expect("Failed to register SIGINT handler");
-
-    tokio::spawn(async move {
-        tokio::select! {
-            _ = sigterm.recv() => {
-                log::info!("Received SIGTERM — cleaning up hotspot rules");
-                cleanup_hotspot_on_exit().await;
-                gtk4::Application::default().quit();
-            }
-            _ = sigint.recv() => {
-                log::info!("Received SIGINT — cleaning up hotspot rules");
-                cleanup_hotspot_on_exit().await;
-                gtk4::Application::default().quit();
-            }
-        }
-    });
-}
-
-async fn cleanup_hotspot_on_exit() {
-    if let Ok(Some(iface)) = crate::hotspot::get_hotspot_interface().await {
-        log::info!("Cleaning up hotspot rules on interface: {}", iface);
-        if let Err(e) = crate::hotspot::stop_hotspot().await {
-            log::error!("Failed to cleanup hotspot on exit: {}", e);
-        }
-    }
-}
-
 pub fn run() -> glib::ExitCode {
     normalize_gsk_renderer_env();
     setup_logging();
@@ -139,10 +109,10 @@ pub fn run() -> glib::ExitCode {
 
     hotspot::spawn_runtime_daemon();
 
-    register_cleanup_signals();
 
     let app = adw::Application::builder().application_id(APP_ID).build();
 
+    app.connect_startup(|_| desktop::setup());
     app.connect_activate(build_ui);
     let result = app.run();
 
@@ -153,8 +123,9 @@ pub fn run() -> glib::ExitCode {
 
 fn build_ui(app: &adw::Application) {
     log::info!("Building UI...");
+    if let Some(window) = app.active_window() { window.present(); return; }
     let window = AdwNetworkWindow::new(app);
-    window.window.set_size_request(480, 640);
+    window.window.set_size_request(760, 600);
     window.present();
     log::info!("UI built and window presented");
 }

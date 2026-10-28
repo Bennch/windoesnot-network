@@ -468,7 +468,7 @@ pub fn save_config_sync(path: &Path, config: &HotspotConfig) -> Result<()> {
 
 pub fn hotspot_config_path() -> PathBuf {
     std::env::var("HOME")
-        .map(|home| PathBuf::from(home).join(".config/adw-network/hotspot.json"))
+        .map(|home| PathBuf::from(home).join(".config/windoesnot-network/hotspot.json"))
         .unwrap_or_else(|_| PathBuf::from("/tmp/adw-network-hotspot.json"))
 }
 
@@ -563,7 +563,7 @@ pub fn normalize_mac_address(value: &str) -> Option<String> {
 
 pub fn app_settings_path() -> PathBuf {
     std::env::var("HOME")
-        .map(|home| PathBuf::from(home).join(".config/adw-network/settings.json"))
+        .map(|home| PathBuf::from(home).join(".config/windoesnot-network/settings.json"))
         .unwrap_or_else(|_| PathBuf::from("/tmp/adw-network-settings.json"))
 }
 

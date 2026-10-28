@@ -851,7 +851,7 @@ impl NmDbusClient {
         let mut settings: SettingsMap = HashMap::new();
 
         let mut connection = HashMap::new();
-        connection.insert("id".to_string(), Self::ov_str("Hotspot"));
+        connection.insert("id".to_string(), Self::ov_str(crate::hotspot::CONNECTION_ID));
         connection.insert("type".to_string(), Self::ov_str("802-11-wireless"));
         connection.insert("autoconnect".to_string(), false.into());
         connection.insert("interface-name".to_string(), Self::ov_str(iface));
@@ -886,7 +886,7 @@ impl NmDbusClient {
             settings.insert("802-11-wireless-security".to_string(), sec);
         }
 
-        if let Some(existing) = self.find_connection_by_id("Hotspot").await? {
+        if let Some(existing) = self.find_connection_by_id(crate::hotspot::CONNECTION_ID).await? {
             self.update_connection_settings(&existing.path, &settings)
                 .await?;
             return Ok(());
@@ -1206,7 +1206,7 @@ impl NmDbusClient {
         let active = self.list_active_connections().await?;
         let hotspot = active
             .into_iter()
-            .find(|c| c.id == "Hotspot" && c.state == NM_ACTIVE_CONNECTION_STATE_ACTIVATED);
+            .find(|c| c.id == crate::hotspot::CONNECTION_ID && c.state == NM_ACTIVE_CONNECTION_STATE_ACTIVATED);
 
         let Some(hotspot) = hotspot else {
             return Ok(None);

@@ -66,7 +66,7 @@ impl DevicesPage {
         header.set_margin_end(16);
 
         let title = gtk4::Label::builder()
-            .label("Connected Devices")
+            .label(crate::desktop::tr("Connected Devices"))
             .css_classes(vec!["title-2".to_string()])
             .hexpand(true)
             .xalign(0.0)
@@ -77,7 +77,7 @@ impl DevicesPage {
                 "view-refresh-symbolic",
                 &["view-refresh", "reload-symbolic"][..],
             ))
-            .tooltip_text("Refresh devices")
+            .tooltip_text(crate::desktop::tr("Refresh devices"))
             .css_classes(vec![
                 "flat".to_string(),
                 "circular".to_string(),
@@ -95,7 +95,7 @@ impl DevicesPage {
         operation_status_label.set_opacity(0.7);
         operation_status_label.set_visible(false);
 
-        let client_count_label = gtk4::Label::new(Some("0 clients (approximate)"));
+        let client_count_label = gtk4::Label::new(Some(crate::desktop::tr("0 clients (approximate)")));
         client_count_label.set_halign(gtk4::Align::Start);
         client_count_label.set_margin_start(16);
         client_count_label.set_margin_end(16);
@@ -125,22 +125,22 @@ impl DevicesPage {
         content.set_margin_bottom(16);
 
         let mobile_group = adw::PreferencesGroup::new();
-        mobile_group.set_title("Mobile Data");
+        mobile_group.set_title(crate::desktop::tr("Mobile Data"));
         mobile_group.set_description(Some(
             "Manage cellular modem status, APN, and connection state from ModemManager.",
         ));
 
         let mobile_status_row = adw::ActionRow::builder()
-            .title("Status")
-            .subtitle("Checking for modems...")
+            .title(crate::desktop::tr("Status"))
+            .subtitle(crate::desktop::tr("Checking for modems..."))
             .build();
         let mobile_actions = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
         let mobile_connect_button = gtk4::Button::builder()
-            .label("Connect")
+            .label(crate::desktop::tr("Connect"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let mobile_radio_button = gtk4::Button::builder()
-            .label("Turn radio on")
+            .label(crate::desktop::tr("Turn radio on"))
             .css_classes(vec!["flat".to_string()])
             .build();
         mobile_actions.append(&mobile_connect_button);
@@ -148,19 +148,19 @@ impl DevicesPage {
         mobile_status_row.add_suffix(&mobile_actions);
 
         let mobile_signal_row = adw::ActionRow::builder()
-            .title("Signal")
-            .subtitle("Unavailable")
+            .title(crate::desktop::tr("Signal"))
+            .subtitle(crate::desktop::tr("Unavailable"))
             .build();
         let mobile_network_row = adw::ActionRow::builder()
-            .title("Network")
-            .subtitle("Unavailable")
+            .title(crate::desktop::tr("Network"))
+            .subtitle(crate::desktop::tr("Unavailable"))
             .build();
         let mobile_sim_row = adw::ActionRow::builder()
-            .title("SIM / PIN")
-            .subtitle("Unavailable")
+            .title(crate::desktop::tr("SIM / PIN"))
+            .subtitle(crate::desktop::tr("Unavailable"))
             .build();
-        let mobile_apn_entry = adw::EntryRow::builder().title("APN").build();
-        mobile_apn_entry.set_text("");
+        let mobile_apn_entry = adw::EntryRow::builder().title(crate::desktop::tr("APN")).build();
+        mobile_apn_entry.set_text(crate::desktop::tr(""));
 
         mobile_group.add(&mobile_status_row);
         mobile_group.add(&mobile_signal_row);
@@ -184,8 +184,8 @@ impl DevicesPage {
                     "computer",
                 ][..],
             ))
-            .title("Waiting for devices to connect…")
-            .description("Devices will appear here when they join your hotspot")
+            .title(crate::desktop::tr("Waiting for devices to connect…"))
+            .description(crate::desktop::tr("Devices will appear here when they join your hotspot"))
             .build();
         empty_state.add_css_class("devices-empty");
         empty_state.set_visible(true);
@@ -365,10 +365,10 @@ impl DevicesPage {
                 log::error!("Failed to refresh mobile data status: {}", e);
                 self.mobile_group
                     .set_description(Some("Could not read ModemManager status."));
-                self.mobile_status_row.set_subtitle("Status unavailable");
-                self.mobile_signal_row.set_subtitle("Unavailable");
-                self.mobile_network_row.set_subtitle("Unavailable");
-                self.mobile_sim_row.set_subtitle("Unavailable");
+                self.mobile_status_row.set_subtitle(crate::desktop::tr("Status unavailable"));
+                self.mobile_signal_row.set_subtitle(crate::desktop::tr("Unavailable"));
+                self.mobile_network_row.set_subtitle(crate::desktop::tr("Unavailable"));
+                self.mobile_sim_row.set_subtitle(crate::desktop::tr("Unavailable"));
                 self.mobile_apn_entry.set_sensitive(false);
                 self.mobile_connect_button.set_sensitive(false);
                 self.mobile_radio_button.set_sensitive(false);
@@ -382,14 +382,14 @@ impl DevicesPage {
                 "ModemManager is not available on this system, so mobile data controls are disabled.",
             ));
             self.mobile_status_row.set_subtitle(&status.state_label);
-            self.mobile_signal_row.set_subtitle("Unavailable");
-            self.mobile_network_row.set_subtitle("Unavailable");
-            self.mobile_sim_row.set_subtitle("Unavailable");
-            self.mobile_apn_entry.set_text("");
+            self.mobile_signal_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_network_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_sim_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_apn_entry.set_text(crate::desktop::tr(""));
             self.mobile_apn_entry.set_sensitive(false);
-            self.mobile_connect_button.set_label("Connect");
+            self.mobile_connect_button.set_label(crate::desktop::tr("Connect"));
             self.mobile_connect_button.set_sensitive(false);
-            self.mobile_radio_button.set_label("Turn radio on");
+            self.mobile_radio_button.set_label(crate::desktop::tr("Turn radio on"));
             self.mobile_radio_button.set_sensitive(false);
             return;
         }
@@ -399,14 +399,14 @@ impl DevicesPage {
                 "No mobile broadband modem was detected. If you attach one, it will appear here automatically.",
             ));
             self.mobile_status_row.set_subtitle(&status.state_label);
-            self.mobile_signal_row.set_subtitle("Unavailable");
-            self.mobile_network_row.set_subtitle("Unavailable");
-            self.mobile_sim_row.set_subtitle("Unavailable");
-            self.mobile_apn_entry.set_text("");
+            self.mobile_signal_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_network_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_sim_row.set_subtitle(crate::desktop::tr("Unavailable"));
+            self.mobile_apn_entry.set_text(crate::desktop::tr(""));
             self.mobile_apn_entry.set_sensitive(false);
-            self.mobile_connect_button.set_label("Connect");
+            self.mobile_connect_button.set_label(crate::desktop::tr("Connect"));
             self.mobile_connect_button.set_sensitive(false);
-            self.mobile_radio_button.set_label("Turn radio on");
+            self.mobile_radio_button.set_label(crate::desktop::tr("Turn radio on"));
             self.mobile_radio_button.set_sensitive(false);
             return;
         }
@@ -533,11 +533,11 @@ impl DevicesPage {
     fn update_empty_state_message(&self, hotspot_active: bool) {
         if hotspot_active {
             self.empty_state
-                .set_title("Waiting for devices to connect...");
+                .set_title(crate::desktop::tr("Waiting for devices to connect..."));
             self.empty_state
                 .set_description(Some("Devices will appear here when they join your hotspot"));
         } else {
-            self.empty_state.set_title("No devices found");
+            self.empty_state.set_title(crate::desktop::tr("No devices found"));
             self.empty_state
                 .set_description(Some("Start a hotspot or refresh to detect nearby clients"));
         }
@@ -553,7 +553,7 @@ impl DevicesPage {
         self.client_count_label
             .set_text(&format!("{} {} ({})", count, noun, qualifier));
         if estimated {
-            self.client_count_label.set_tooltip_text(Some("estimated"));
+            self.client_count_label.set_tooltip_text(Some(crate::desktop::tr("estimated")));
         } else {
             self.client_count_label.set_tooltip_text(None);
         }
@@ -638,7 +638,7 @@ impl DevicesPage {
             row.add_prefix(&icon);
 
             let manage_button = gtk4::Button::builder()
-                .label("Manage")
+                .label(crate::desktop::tr("Manage"))
                 .css_classes(vec!["flat".to_string(), "touch-target".to_string()])
                 .build();
             let page_for_manage = self.clone();
@@ -701,7 +701,7 @@ impl DevicesPage {
             menu_box.set_margin_bottom(6);
 
             let details_btn = gtk4::Button::builder()
-                .label("Device details")
+                .label(crate::desktop::tr("Device details"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
             let popover_details = popover.clone();
@@ -723,7 +723,7 @@ impl DevicesPage {
             menu_box.append(&details_btn);
 
             let manage_btn = gtk4::Button::builder()
-                .label("Manage access")
+                .label(crate::desktop::tr("Manage access"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
             let popover_manage = popover.clone();
@@ -745,7 +745,7 @@ impl DevicesPage {
             menu_box.append(&manage_btn);
 
             let copy_ip_btn = gtk4::Button::builder()
-                .label("Copy IP")
+                .label(crate::desktop::tr("Copy IP"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
             let popover_copy_ip = popover.clone();
@@ -759,7 +759,7 @@ impl DevicesPage {
             menu_box.append(&copy_ip_btn);
 
             let copy_mac_btn = gtk4::Button::builder()
-                .label("Copy MAC")
+                .label(crate::desktop::tr("Copy MAC"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
             let popover_copy_mac = popover.clone();
@@ -960,7 +960,7 @@ impl DevicesPage {
         device: ConnectedDevice,
         existing_rule: Option<HotspotClientRule>,
     ) -> anyhow::Result<Option<HotspotClientRule>> {
-        let display_name_entry = adw::EntryRow::builder().title("Device name").build();
+        let display_name_entry = adw::EntryRow::builder().title(crate::desktop::tr("Device name")).build();
         display_name_entry.set_text(
             existing_rule
                 .as_ref()
@@ -970,16 +970,16 @@ impl DevicesPage {
         );
 
         let mac_row = adw::ActionRow::builder()
-            .title("MAC address")
+            .title(crate::desktop::tr("MAC address"))
             .subtitle(&device.mac)
             .build();
         let ip_row = adw::ActionRow::builder()
-            .title("IP address")
+            .title(crate::desktop::tr("IP address"))
             .subtitle(&device.ip)
             .build();
         let blocked_switch = adw::SwitchRow::builder()
-            .title("Block this device")
-            .subtitle("Immediately drops hotspot traffic for this MAC")
+            .title(crate::desktop::tr("Block this device"))
+            .subtitle(crate::desktop::tr("Immediately drops hotspot traffic for this MAC"))
             .active(
                 existing_rule
                     .as_ref()
@@ -989,8 +989,8 @@ impl DevicesPage {
             .build();
 
         let download_row = adw::ActionRow::builder()
-            .title("Download speed limit")
-            .subtitle("kbit/s, optional")
+            .title(crate::desktop::tr("Download speed limit"))
+            .subtitle(crate::desktop::tr("kbit/s, optional"))
             .build();
         let download_spin = gtk4::SpinButton::builder()
             .adjustment(&gtk4::Adjustment::new(
@@ -1013,8 +1013,8 @@ impl DevicesPage {
         download_row.add_suffix(&download_spin);
 
         let upload_row = adw::ActionRow::builder()
-            .title("Upload speed limit")
-            .subtitle("kbit/s, optional")
+            .title(crate::desktop::tr("Upload speed limit"))
+            .subtitle(crate::desktop::tr("kbit/s, optional"))
             .build();
         let upload_spin = gtk4::SpinButton::builder()
             .adjustment(&gtk4::Adjustment::new(
@@ -1049,7 +1049,7 @@ impl DevicesPage {
         };
 
         let time_row = adw::ActionRow::builder()
-            .title("Connected time quota")
+            .title(crate::desktop::tr("Connected time quota"))
             .subtitle(format!("minutes, {}", quota_reset))
             .build();
         let time_spin = gtk4::SpinButton::builder()
@@ -1066,7 +1066,7 @@ impl DevicesPage {
         time_row.add_suffix(&time_spin);
 
         let download_quota_row = adw::ActionRow::builder()
-            .title("Download quota")
+            .title(crate::desktop::tr("Download quota"))
             .subtitle(format!("MB, {}", quota_reset))
             .build();
         let download_quota_spin = gtk4::SpinButton::builder()
@@ -1090,7 +1090,7 @@ impl DevicesPage {
         download_quota_row.add_suffix(&download_quota_spin);
 
         let upload_quota_row = adw::ActionRow::builder()
-            .title("Upload quota")
+            .title(crate::desktop::tr("Upload quota"))
             .subtitle(format!("MB, {}", quota_reset))
             .build();
         let upload_quota_spin = gtk4::SpinButton::builder()
@@ -1113,7 +1113,7 @@ impl DevicesPage {
         );
         upload_quota_row.add_suffix(&upload_quota_spin);
 
-        let blocked_domains_entry = adw::EntryRow::builder().title("Blocked sites").build();
+        let blocked_domains_entry = adw::EntryRow::builder().title(crate::desktop::tr("Blocked sites")).build();
         blocked_domains_entry.set_text(
             &existing_rule
                 .as_ref()

@@ -73,7 +73,7 @@ impl ProfilesPage {
         let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
 
         let title = gtk4::Label::builder()
-            .label("Profiles")
+            .label(crate::desktop::tr("Profiles"))
             .halign(gtk4::Align::Start)
             .hexpand(true)
             .build();
@@ -81,7 +81,7 @@ impl ProfilesPage {
 
         let new_profile_button = gtk4::Button::builder()
             .icon_name("list-add-symbolic")
-            .tooltip_text("New profile")
+            .tooltip_text(crate::desktop::tr("New profile"))
             .css_classes(vec!["flat".to_string(), "circular".to_string()])
             .build();
 
@@ -93,7 +93,7 @@ impl ProfilesPage {
                     "network-workgroup-symbolic",
                 ][..],
             ))
-            .tooltip_text("Create VPN")
+            .tooltip_text(crate::desktop::tr("Create VPN"))
             .css_classes(vec!["flat".to_string(), "circular".to_string()])
             .build();
 
@@ -102,7 +102,7 @@ impl ProfilesPage {
                 "document-open-symbolic",
                 &["folder-open-symbolic", "folder-symbolic"][..],
             ))
-            .tooltip_text("Import VPN")
+            .tooltip_text(crate::desktop::tr("Import VPN"))
             .css_classes(vec!["flat".to_string(), "circular".to_string()])
             .build();
 
@@ -111,7 +111,7 @@ impl ProfilesPage {
                 "view-refresh-symbolic",
                 &["view-refresh", "reload-symbolic"][..],
             ))
-            .tooltip_text("Refresh profiles and VPN connections")
+            .tooltip_text(crate::desktop::tr("Refresh profiles and VPN connections"))
             .css_classes(vec!["flat".to_string(), "circular".to_string()])
             .build();
 
@@ -135,7 +135,7 @@ impl ProfilesPage {
         content.append(&operation_status_label);
 
         let profile_title = gtk4::Label::builder()
-            .label("Profile Sets")
+            .label(crate::desktop::tr("Profile Sets"))
             .halign(gtk4::Align::Start)
             .build();
         profile_title.add_css_class("heading");
@@ -152,8 +152,8 @@ impl ProfilesPage {
                 "network-workgroup-symbolic",
                 &["folder-symbolic", "applications-system-symbolic"][..],
             ))
-            .title("No profile sets")
-            .description("Create a profile to manage auto-connect behavior")
+            .title(crate::desktop::tr("No profile sets"))
+            .description(crate::desktop::tr("Create a profile to manage auto-connect behavior"))
             .build();
         profile_empty_state.set_visible(true);
 
@@ -161,7 +161,7 @@ impl ProfilesPage {
         content.append(&profile_empty_state);
 
         let vpn_title = gtk4::Label::builder()
-            .label("VPN Connections")
+            .label(crate::desktop::tr("VPN Connections"))
             .halign(gtk4::Align::Start)
             .build();
         vpn_title.add_css_class("heading");
@@ -181,8 +181,8 @@ impl ProfilesPage {
                     "network-workgroup-symbolic",
                 ][..],
             ))
-            .title("No supported VPN connections")
-            .description("Create a WireGuard VPN or import an OpenVPN/WireGuard profile")
+            .title(crate::desktop::tr("No supported VPN connections"))
+            .description(crate::desktop::tr("Create a WireGuard VPN or import an OpenVPN/WireGuard profile"))
             .build();
         vpn_empty_state.set_visible(true);
 
@@ -383,28 +383,28 @@ impl ProfilesPage {
                 &["object-select-symbolic", "emblem-default-symbolic"][..],
             ));
             active_badge.set_pixel_size(14);
-            active_badge.set_tooltip_text(Some("Active profile"));
+            active_badge.set_tooltip_text(Some(crate::desktop::tr("Active profile")));
             row.add_suffix(&active_badge);
         }
 
         let actions = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
         let activate_btn = gtk4::Button::builder()
-            .label("Activate")
-            .tooltip_text("Activate profile")
+            .label(crate::desktop::tr("Activate"))
+            .tooltip_text(crate::desktop::tr("Activate profile"))
             .css_classes(vec!["flat".to_string()])
             .sensitive(!profile.active)
             .build();
 
         let edit_btn = gtk4::Button::builder()
-            .label("Edit")
-            .tooltip_text("Edit profile")
+            .label(crate::desktop::tr("Edit"))
+            .tooltip_text(crate::desktop::tr("Edit profile"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
         let delete_btn = gtk4::Button::builder()
-            .label("Delete")
-            .tooltip_text("Delete profile")
+            .label(crate::desktop::tr("Delete"))
+            .tooltip_text(crate::desktop::tr("Delete profile"))
             .css_classes(vec!["flat".to_string(), "destructive-action".to_string()])
             .build();
 
@@ -497,14 +497,14 @@ impl ProfilesPage {
             .build();
 
         let edit_btn = gtk4::Button::builder()
-            .label("Edit")
-            .tooltip_text("Edit VPN")
+            .label(crate::desktop::tr("Edit"))
+            .tooltip_text(crate::desktop::tr("Edit VPN"))
             .css_classes(vec!["flat".to_string()])
             .build();
 
         let delete_btn = gtk4::Button::builder()
-            .label("Delete")
-            .tooltip_text("Delete VPN")
+            .label(crate::desktop::tr("Delete"))
+            .tooltip_text(crate::desktop::tr("Delete VPN"))
             .css_classes(vec!["flat".to_string(), "destructive-action".to_string()])
             .build();
 
@@ -901,7 +901,7 @@ impl ProfilesPage {
     #[allow(deprecated)]
     async fn choose_import_file(&self) -> anyhow::Result<Option<PathBuf>> {
         let chooser = gtk4::FileChooserNative::builder()
-            .title("Import VPN")
+            .title(crate::desktop::tr("Import VPN"))
             .action(gtk4::FileChooserAction::Open)
             .accept_label("Import")
             .cancel_label("Cancel")
@@ -934,7 +934,7 @@ impl ProfilesPage {
             "New Profile"
         };
 
-        let name_entry = adw::EntryRow::builder().title("Profile name").build();
+        let name_entry = adw::EntryRow::builder().title(crate::desktop::tr("Profile name")).build();
         if let Some(profile) = existing.as_ref() {
             name_entry.set_text(&profile.name);
             if let Ok(mut selected_ids_state) = selected_ids.try_borrow_mut() {
@@ -952,8 +952,8 @@ impl ProfilesPage {
         filter_dropdown.set_selected(0);
 
         let filter_row = adw::ActionRow::builder()
-            .title("Connection type")
-            .subtitle("Filter assignable connections")
+            .title(crate::desktop::tr("Connection type"))
+            .subtitle(crate::desktop::tr("Filter assignable connections"))
             .build();
         filter_row.add_suffix(&filter_dropdown);
         filter_row.set_activatable_widget(Some(&filter_dropdown));
@@ -983,7 +983,7 @@ impl ProfilesPage {
         });
 
         let connections_group = adw::PreferencesGroup::new();
-        connections_group.set_title("Assigned connections");
+        connections_group.set_title(crate::desktop::tr("Assigned connections"));
         connections_group.add(&connections_list);
 
         let content_box = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
@@ -1043,25 +1043,25 @@ impl ProfilesPage {
         &self,
         existing: Option<WireGuardConnectionConfig>,
     ) -> anyhow::Result<Option<WireGuardConnectionConfig>> {
-        let name_entry = adw::EntryRow::builder().title("Connection name").build();
-        let interface_entry = adw::EntryRow::builder().title("Interface name").build();
-        let addresses_entry = adw::EntryRow::builder().title("Addresses").build();
-        addresses_entry.set_text("10.0.0.2/32");
-        let dns_entry = adw::EntryRow::builder().title("DNS servers").build();
+        let name_entry = adw::EntryRow::builder().title(crate::desktop::tr("Connection name")).build();
+        let interface_entry = adw::EntryRow::builder().title(crate::desktop::tr("Interface name")).build();
+        let addresses_entry = adw::EntryRow::builder().title(crate::desktop::tr("Addresses")).build();
+        addresses_entry.set_text(crate::desktop::tr("10.0.0.2/32"));
+        let dns_entry = adw::EntryRow::builder().title(crate::desktop::tr("DNS servers")).build();
         let private_key_entry = adw::PasswordEntryRow::builder()
-            .title("Private key")
+            .title(crate::desktop::tr("Private key"))
             .build();
-        let public_key_entry = adw::EntryRow::builder().title("Peer public key").build();
-        let endpoint_entry = adw::EntryRow::builder().title("Endpoint").build();
-        let allowed_ips_entry = adw::EntryRow::builder().title("Allowed IPs").build();
-        allowed_ips_entry.set_text("0.0.0.0/0, ::/0");
+        let public_key_entry = adw::EntryRow::builder().title(crate::desktop::tr("Peer public key")).build();
+        let endpoint_entry = adw::EntryRow::builder().title(crate::desktop::tr("Endpoint")).build();
+        let allowed_ips_entry = adw::EntryRow::builder().title(crate::desktop::tr("Allowed IPs")).build();
+        allowed_ips_entry.set_text(crate::desktop::tr("0.0.0.0/0, ::/0"));
         let preshared_key_entry = adw::PasswordEntryRow::builder()
-            .title("Preshared key")
+            .title(crate::desktop::tr("Preshared key"))
             .build();
 
         let keepalive_row = adw::ActionRow::builder()
-            .title("Persistent keepalive")
-            .subtitle("Seconds, optional")
+            .title(crate::desktop::tr("Persistent keepalive"))
+            .subtitle(crate::desktop::tr("Seconds, optional"))
             .build();
         let keepalive_adjustment = gtk4::Adjustment::new(25.0, 0.0, 3600.0, 1.0, 10.0, 0.0);
         let keepalive_spin = gtk4::SpinButton::builder()
@@ -1072,8 +1072,8 @@ impl ProfilesPage {
         keepalive_row.add_suffix(&keepalive_spin);
 
         let mtu_row = adw::ActionRow::builder()
-            .title("MTU")
-            .subtitle("Optional")
+            .title(crate::desktop::tr("MTU"))
+            .subtitle(crate::desktop::tr("Optional"))
             .build();
         let mtu_adjustment = gtk4::Adjustment::new(1420.0, 0.0, 9000.0, 1.0, 10.0, 0.0);
         let mtu_spin = gtk4::SpinButton::builder()
@@ -1096,7 +1096,7 @@ impl ProfilesPage {
             keepalive_spin.set_value(existing.persistent_keepalive.unwrap_or_default() as f64);
             mtu_spin.set_value(existing.mtu.unwrap_or_default() as f64);
         } else {
-            interface_entry.set_text("wg0");
+            interface_entry.set_text(crate::desktop::tr("wg0"));
             keepalive_spin.set_value(25.0);
         }
 
@@ -1188,9 +1188,9 @@ impl ProfilesPage {
         &self,
         existing: Option<OpenVpnConnectionConfig>,
     ) -> anyhow::Result<Option<OpenVpnConnectionConfig>> {
-        let name_entry = adw::EntryRow::builder().title("Connection name").build();
-        let remote_entry = adw::EntryRow::builder().title("Server / remote").build();
-        let username_entry = adw::EntryRow::builder().title("Username").build();
+        let name_entry = adw::EntryRow::builder().title(crate::desktop::tr("Connection name")).build();
+        let remote_entry = adw::EntryRow::builder().title(crate::desktop::tr("Server / remote")).build();
+        let username_entry = adw::EntryRow::builder().title(crate::desktop::tr("Username")).build();
 
         if let Some(existing) = existing.as_ref() {
             name_entry.set_text(&existing.name);

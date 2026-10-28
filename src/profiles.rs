@@ -20,7 +20,7 @@ pub struct NetworkProfile {
 
 pub fn profiles_path() -> PathBuf {
     std::env::var("HOME")
-        .map(|home| PathBuf::from(home).join(".config/adw-network/profiles.json"))
+        .map(|home| PathBuf::from(home).join(".config/windoesnot-network/profiles.json"))
         .unwrap_or_else(|_| PathBuf::from("/tmp/adw-network-profiles.json"))
 }
 

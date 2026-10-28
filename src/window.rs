@@ -277,7 +277,7 @@ pub struct AdwNetworkWindow {
 impl AdwNetworkWindow {
     pub fn new(app: &adw::Application) -> Self {
         Self::load_css();
-        Self::load_saved_theme();
+        // Desktop theme is supplied by the common WinDoesNot preferences.
 
         let settings_path = config::app_settings_path();
         let (app_settings, settings_repaired) =
@@ -385,15 +385,15 @@ impl AdwNetworkWindow {
         }
 
         let no_network_page_widget = adw::StatusPage::builder()
-            .title("No Networks Available")
-            .description("No network hardware detected. Check your hardware or restart NetworkManager.")
+            .title(crate::desktop::tr("No Networks Available"))
+            .description(crate::desktop::tr("No network hardware detected. Check your hardware or restart NetworkManager."))
             .icon_name(icon_name(
                 "network-offline-symbolic",
                 &["network-offline", "network-wireless-offline-symbolic"][..],
             ))
             .build();
         let no_network_action = gtk4::Button::builder()
-            .label("Open System Settings")
+            .label(crate::desktop::tr("Open System Settings"))
             .css_classes(vec!["suggested-action".to_string()])
             .build();
         no_network_action.set_visible(false);
@@ -447,7 +447,7 @@ impl AdwNetworkWindow {
             .stack(&view_stack)
             .policy(adw::ViewSwitcherPolicy::Wide)
             .build();
-        view_switcher.set_tooltip_text(Some("Mod: right-click to edit"));
+        view_switcher.set_tooltip_text(Some(crate::desktop::tr("Mod: right-click to edit")));
         Self::apply_navigation_mode(
             &wifi_stack_page,
             &ethernet_stack_page,
@@ -488,7 +488,7 @@ impl AdwNetworkWindow {
                 "view-refresh-symbolic",
                 &["view-refresh", "reload-symbolic"][..],
             ))
-            .tooltip_text("Reset modules to defaults")
+            .tooltip_text(crate::desktop::tr("Reset modules to defaults"))
             .css_classes(vec![
                 "flat".to_string(),
                 "touch-target".to_string(),
@@ -597,7 +597,7 @@ impl AdwNetworkWindow {
 
                 // Show global empty page when no hardware modules available
                 if !resolved.any_visible() {
-                    no_network_widget_for_visibility.set_title("No Networks Available");
+                    no_network_widget_for_visibility.set_title(crate::desktop::tr("No Networks Available"));
                     no_network_widget_for_visibility.set_description(Some(
                         "No network hardware detected. Check your hardware or restart NetworkManager.",
                     ));
@@ -765,7 +765,7 @@ impl AdwNetworkWindow {
         ));
         status_icon.set_pixel_size(14);
 
-        let status_label = gtk4::Label::new(Some("Checking status…"));
+        let status_label = gtk4::Label::new(Some(crate::desktop::tr("Checking status…")));
         status_label.add_css_class("status-text");
         status_label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
         status_label.set_single_line_mode(true);
@@ -775,13 +775,13 @@ impl AdwNetworkWindow {
         status_pill.add_css_class("status-pill");
         status_pill.append(&status_icon);
         status_pill.append(&status_label);
-        status_pill.set_tooltip_text(Some("Connection status"));
+        status_pill.set_tooltip_text(Some(crate::desktop::tr("Connection status")));
 
-        let speed_down_label = gtk4::Label::new(Some("↓ 0 KB/s"));
+        let speed_down_label = gtk4::Label::new(Some(crate::desktop::tr("↓ 0 KB/s")));
         speed_down_label.add_css_class("status-speed-text");
-        let speed_up_label = gtk4::Label::new(Some("↑ 0 KB/s"));
+        let speed_up_label = gtk4::Label::new(Some(crate::desktop::tr("↑ 0 KB/s")));
         speed_up_label.add_css_class("status-speed-text");
-        let speed_sep_label = gtk4::Label::new(Some("|"));
+        let speed_sep_label = gtk4::Label::new(Some(crate::desktop::tr("|")));
         speed_sep_label.add_css_class("status-speed-sep");
 
         let speed_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
@@ -801,11 +801,12 @@ impl AdwNetworkWindow {
         view_switcher.set_halign(gtk4::Align::Center);
         title_box.append(&status_pill);
         title_box.append(&speed_box);
-        title_box.append(&nav_stack);
+        // Main navigation lives in the Store-style left sidebar.
+        nav_stack.set_visible(false);
 
         let menu_button = gtk4::MenuButton::builder()
             .icon_name("emblem-system-symbolic")
-            .tooltip_text("Settings & About")
+            .tooltip_text(crate::desktop::tr("Settings & About"))
             .build();
         menu_button.add_css_class("menu-button");
         menu_button.add_css_class("header-mini-button");
@@ -834,7 +835,55 @@ impl AdwNetworkWindow {
         toolbar_view.add_top_bar(&header);
         toolbar_view.set_content(Some(&view_stack));
         let root_toast_overlay = adw::ToastOverlay::new();
-        root_toast_overlay.set_child(Some(&toolbar_view));
+        let layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+        let sidebar = gtk4::Box::new(gtk4::Orientation::Vertical, 8);
+        sidebar.set_size_request(250, -1);
+        sidebar.set_hexpand(false);
+        sidebar.add_css_class("wdn-sidebar");
+        sidebar.append(&crate::desktop::brand(crate::desktop::tr("Network")));
+        let navigation = gtk4::ListBox::new();
+        navigation.add_css_class("wdn-navigation");
+        navigation.set_activate_on_single_click(true);
+        let names = ["wifi", "ethernet", "hotspot", "devices", "profiles"];
+        for (name, title, icon) in [
+            ("wifi", "Wi-Fi", "network-wireless-symbolic"),
+            ("ethernet", "Ethernet", "network-wired-symbolic"),
+            ("hotspot", "Hotspot", "network-wireless-hotspot-symbolic"),
+            ("devices", "Devices", "computer-symbolic"),
+            ("profiles", "Profiles", "network-workgroup-symbolic"),
+        ] {
+            let content = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+            content.append(&gtk4::Image::from_icon_name(icon));
+            content.append(&gtk4::Label::new(Some(crate::desktop::tr(title))));
+            let row = gtk4::ListBoxRow::new(); row.set_child(Some(&content));
+            navigation.append(&row);
+            // Keep hardware/module visibility in sync with the upstream pages.
+            if let Some(child) = view_stack.child_by_name(name) {
+                let page = view_stack.page(&child);
+                row.set_visible(page.is_visible());
+                let row_copy = row.clone();
+                page.connect_visible_notify(move |page| row_copy.set_visible(page.is_visible()));
+            }
+        }
+        let stack_copy = view_stack.clone();
+        navigation.connect_row_activated(move |_,row| {
+            if let Some(name) = names.get(row.index() as usize) { stack_copy.set_visible_child_name(name); }
+        });
+        let nav_copy = navigation.clone();
+        view_stack.connect_visible_child_name_notify(move |stack| {
+            if let Some(index) = names.iter().position(|name| Some(*name) == stack.visible_child_name().as_deref()) {
+                nav_copy.select_row(nav_copy.row_at_index(index as i32).as_ref());
+            }
+        });
+        sidebar.append(&navigation);
+        let settings_button = gtk4::Button::with_label(crate::desktop::tr("Settings"));
+        settings_button.set_action_name(Some("app.settings"));
+        settings_button.set_margin_start(16); settings_button.set_margin_end(16);
+        sidebar.append(&settings_button);
+        layout.append(&sidebar);
+        toolbar_view.set_hexpand(true); toolbar_view.set_vexpand(true);
+        layout.append(&toolbar_view);
+        root_toast_overlay.set_child(Some(&layout));
 
         // Periodically update the global connection status
         let status_icon_for_updates = status_icon.clone();
@@ -859,11 +908,11 @@ impl AdwNetworkWindow {
                         "network-wireless-hotspot-symbolic",
                         &["network-wireless-symbolic", "network-wireless"][..],
                     )));
-                    status_label.set_text("Hotspot active");
+                    status_label.set_text(crate::desktop::tr("Hotspot active"));
                     if let Some(ssid) = ssid {
                         status_pill.set_tooltip_text(Some(&format!("Hotspot: {}", ssid)));
                     } else {
-                        status_pill.set_tooltip_text(Some("Hotspot active"));
+                        status_pill.set_tooltip_text(Some(crate::desktop::tr("Hotspot active")));
                     }
                     status_pill.add_css_class("status-hotspot");
                     return;
@@ -943,22 +992,22 @@ impl AdwNetworkWindow {
                                 "network-wireless-offline-symbolic",
                                 &["network-wireless-symbolic", "network-wireless"][..],
                             )));
-                            status_label.set_text("Not connected");
-                            status_pill.set_tooltip_text(Some("Not connected"));
+                            status_label.set_text(crate::desktop::tr("Not connected"));
+                            status_pill.set_tooltip_text(Some(crate::desktop::tr("Not connected")));
                         } else {
                             status_icon.set_icon_name(Some(icon_name(
                                 "network-wireless-disabled-symbolic",
                                 &["network-wireless-offline-symbolic", "network-wireless"][..],
                             )));
-                            status_label.set_text("Not connected");
-                            status_pill.set_tooltip_text(Some("Wi-Fi off"));
+                            status_label.set_text(crate::desktop::tr("Not connected"));
+                            status_pill.set_tooltip_text(Some(crate::desktop::tr("Wi-Fi off")));
                         }
                         status_pill.add_css_class("status-offline");
                     }
                     Err(e) => {
                         log::warn!("Failed to update connection status: {}", e);
-                        status_label.set_text("Status unavailable");
-                        status_pill.set_tooltip_text(Some("Status unavailable"));
+                        status_label.set_text(crate::desktop::tr("Status unavailable"));
+                        status_pill.set_tooltip_text(Some(crate::desktop::tr("Status unavailable")));
                         status_pill.add_css_class("status-offline");
                     }
                 }
@@ -1039,11 +1088,11 @@ impl AdwNetworkWindow {
 
         let window = adw::ApplicationWindow::builder()
             .application(app)
-            .title("Adwaita Network")
+            .title(&format!("WinDoesNot {}", crate::desktop::tr("Network")))
             .resizable(true)
             .content(&root_toast_overlay)
-            .default_width(700)
-            .default_height(520)
+            .default_width(1100)
+            .default_height(740)
             .build();
 
         const SIGNAL_FALLBACK_TOAST: &str =
@@ -1146,12 +1195,12 @@ impl AdwNetworkWindow {
 
     fn show_about_dialog(window: &adw::ApplicationWindow) {
         let about = adw::AboutDialog::builder()
-            .application_name("Adwaita Network")
+            .application_name("WinDoesNot Network")
             .application_icon("icon")
             .developer_name("PlayRood")
             .version(env!("CARGO_PKG_VERSION"))
             .comments("A modern network management application built with libadwaita")
-            .website("https://github.com/PlayRood/adw-network")
+            .website("https://github.com/Bennch/windoesnot-network")
             .license_type(gtk4::License::Gpl30)
             .build();
 
@@ -1196,8 +1245,8 @@ impl AdwNetworkWindow {
 
         let theme_model = gtk4::StringList::new(&["System", "Light", "Dark"][..]);
         let theme_combo = adw::ComboRow::builder()
-            .title("Appearance")
-            .subtitle("System, light, or dark")
+            .title(crate::desktop::tr("Appearance"))
+            .subtitle(crate::desktop::tr("System, light, or dark"))
             .model(&theme_model)
             .build();
 
@@ -1207,6 +1256,7 @@ impl AdwNetworkWindow {
             _ => 0,
         };
         theme_combo.set_selected(selected);
+        theme_combo.set_visible(false);
 
         let style_manager_for_theme = style_manager.clone();
         let settings_state_for_theme = settings_state.clone();
@@ -1224,11 +1274,11 @@ impl AdwNetworkWindow {
         });
 
         let group = adw::PreferencesGroup::new();
-        group.set_title("Appearance");
+        group.set_title(crate::desktop::tr("Appearance"));
         group.add(&theme_combo);
 
         let storage_group = adw::PreferencesGroup::new();
-        storage_group.set_title("Hotspot Password");
+        storage_group.set_title(crate::desktop::tr("Hotspot Password"));
 
         let storage_model = gtk4::StringList::new(
             &[
@@ -1239,7 +1289,7 @@ impl AdwNetworkWindow {
         );
         let storage_safe_subtitle = "Where hotspot passwords are stored";
         let storage_row = adw::ComboRow::builder()
-            .title("Hotspot password storage")
+            .title(crate::desktop::tr("Hotspot password storage"))
             .subtitle(storage_safe_subtitle)
             .model(&storage_model)
             .build();
@@ -1313,7 +1363,7 @@ impl AdwNetworkWindow {
                     row_for_dialog.set_selected(Self::selection_from_password_storage(
                         &config::HotspotPasswordStorage::PlainJson,
                     ));
-                    row_for_dialog.set_subtitle("(Highly insecure! Debug only)");
+                    row_for_dialog.set_subtitle(crate::desktop::tr("(Highly insecure! Debug only)"));
                     storage_update_guard_for_dialog.set(false);
 
                     if let Some(parent) = row_for_dialog.root().and_downcast::<gtk4::Window>() {
@@ -1345,8 +1395,8 @@ impl AdwNetworkWindow {
 
         let quota_model = gtk4::StringList::new(&["Never reset", "Reset daily at 00:00"][..]);
         let quota_reset_row = adw::ComboRow::builder()
-            .title("Hotspot quota reset")
-            .subtitle("Applies to time and upload/download quotas for device rules")
+            .title(crate::desktop::tr("Hotspot quota reset"))
+            .subtitle(crate::desktop::tr("Applies to time and upload/download quotas for device rules"))
             .model(&quota_model)
             .build();
         quota_reset_row.set_selected(Self::selection_from_quota_reset_policy(
@@ -1369,15 +1419,15 @@ impl AdwNetworkWindow {
 
         let settings_state_for_switches = settings_state.clone();
         let auto_scan_row = adw::SwitchRow::builder()
-            .title("Auto refresh networks")
-            .subtitle("Rescan nearby networks every 10 seconds")
+            .title(crate::desktop::tr("Auto refresh networks"))
+            .subtitle(crate::desktop::tr("Rescan nearby networks every 10 seconds"))
             .active(settings_state_for_switches.borrow().auto_scan)
             .build();
 
         let settings_state_for_switches = settings_state.clone();
         let expand_details_row = adw::SwitchRow::builder()
-            .title("Always show connection details")
-            .subtitle("Keep the active network card expanded")
+            .title(crate::desktop::tr("Always show connection details"))
+            .subtitle(crate::desktop::tr("Keep the active network card expanded"))
             .active(
                 settings_state_for_switches
                     .borrow()
@@ -1387,8 +1437,8 @@ impl AdwNetworkWindow {
 
         let settings_state_for_switches = settings_state.clone();
         let nav_icons_only_row = adw::SwitchRow::builder()
-            .title("Use icons only in top navigation")
-            .subtitle("Keep modules visible, but hide the text labels")
+            .title(crate::desktop::tr("Use icons only in top navigation"))
+            .subtitle(crate::desktop::tr("Keep modules visible, but hide the text labels"))
             .active(settings_state_for_switches.borrow().icons_only_navigation)
             .build();
 
@@ -1485,13 +1535,13 @@ impl AdwNetworkWindow {
         });
 
         let personalization_group = adw::PreferencesGroup::new();
-        personalization_group.set_title("Behavior");
+        personalization_group.set_title(crate::desktop::tr("Behavior"));
         personalization_group.add(&auto_scan_row);
         personalization_group.add(&expand_details_row);
         personalization_group.add(&nav_icons_only_row);
 
         let modules_group = adw::PreferencesGroup::new();
-        modules_group.set_title("Modules");
+        modules_group.set_title(crate::desktop::tr("Modules"));
         modules_group.set_description(Some(
             "Choose which top navigation modules are shown. This is separate from icons-only mode.",
         ));
@@ -1506,27 +1556,27 @@ impl AdwNetworkWindow {
             ][..],
         );
         let module_preset_row = adw::ComboRow::builder()
-            .title("Default layout")
-            .subtitle("Choose which modules are shown in the top navigation")
+            .title(crate::desktop::tr("Default layout"))
+            .subtitle(crate::desktop::tr("Choose which modules are shown in the top navigation"))
             .model(&module_preset_model)
             .build();
 
         let module_order_model =
             gtk4::StringList::new(&["Fixed: Wi-Fi, Ethernet, Hotspot, Devices, Profiles"][..]);
         let module_order_row = adw::ComboRow::builder()
-            .title("Module order")
-            .subtitle("Module order is fixed across the app")
+            .title(crate::desktop::tr("Module order"))
+            .subtitle(crate::desktop::tr("Module order is fixed across the app"))
             .model(&module_order_model)
             .build();
         module_order_row.set_sensitive(false);
 
         let module_reset_factory_btn = gtk4::Button::builder()
-            .label("Restore")
+            .label(crate::desktop::tr("Restore"))
             .css_classes(vec!["flat".to_string()])
             .build();
         let module_reset_factory_row = adw::ActionRow::builder()
-            .title("Restore top navigation")
-            .subtitle("Bring back the safe default modules and order")
+            .title(crate::desktop::tr("Restore top navigation"))
+            .subtitle(crate::desktop::tr("Bring back the safe default modules and order"))
             .build();
         module_reset_factory_row.add_suffix(&module_reset_factory_btn);
         module_reset_factory_row.set_activatable_widget(Some(&module_reset_factory_btn));
@@ -1788,19 +1838,19 @@ impl AdwNetworkWindow {
         modules_group.add(&module_reset_factory_row);
 
         let reset_button = gtk4::Button::builder()
-            .label("Reset to defaults")
+            .label(crate::desktop::tr("Reset to defaults"))
             .css_classes(vec!["destructive-action".to_string()])
             .build();
 
         let reset_row = adw::ActionRow::builder()
-            .title("Reset settings")
-            .subtitle("Clear all changes and restore defaults")
+            .title(crate::desktop::tr("Reset settings"))
+            .subtitle(crate::desktop::tr("Clear all changes and restore defaults"))
             .build();
         reset_row.add_suffix(&reset_button);
         reset_row.set_activatable_widget(Some(&reset_button));
 
         let reset_group = adw::PreferencesGroup::new();
-        reset_group.set_title("Reset");
+        reset_group.set_title(crate::desktop::tr("Reset"));
         reset_group.add(&reset_row);
 
         let settings_state_for_reset = settings_state.clone();
@@ -1848,7 +1898,7 @@ impl AdwNetworkWindow {
             });
 
             theme_combo_for_reset.set_selected(0);
-            style_manager_for_reset.set_color_scheme(adw::ColorScheme::Default);
+            crate::desktop::sync_color_scheme();
             storage_row_for_reset.set_selected(Self::selection_from_password_storage(
                 &defaults.hotspot_password_storage,
             ));
@@ -1872,14 +1922,14 @@ impl AdwNetworkWindow {
         });
 
         let page = adw::PreferencesPage::new();
-        page.set_title("Settings");
+        page.set_title(crate::desktop::tr("Settings"));
         page.add(&group);
         page.add(&storage_group);
         page.add(&personalization_group);
         page.add(&modules_group);
         page.add(&reset_group);
 
-        let settings = adw::PreferencesDialog::builder().title("Settings").build();
+        let settings = adw::PreferencesDialog::builder().title(crate::desktop::tr("Settings")).build();
         settings.add(&page);
         // * Keep settings dialog responsive to main window resize.
         common::make_dialog_responsive(
@@ -1956,7 +2006,7 @@ impl AdwNetworkWindow {
             tile_button.add_css_class("flat");
             tile_button.add_css_class("module-chip");
             tile_button.set_focus_on_click(false);
-            tile_button.set_tooltip_text(Some("Drag to reorder"));
+            tile_button.set_tooltip_text(Some(crate::desktop::tr("Drag to reorder")));
 
             let tile_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
             let drag_handle = gtk4::Image::from_icon_name(icon_name(
@@ -2155,7 +2205,7 @@ impl AdwNetworkWindow {
         }
 
         add_module_btn.set_sensitive(!addable_modules.is_empty());
-        add_module_btn.set_tooltip_text(Some("Add module"));
+        add_module_btn.set_tooltip_text(Some(crate::desktop::tr("Add module")));
 
         let add_list = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
         for kind in addable_modules {

@@ -3,7 +3,7 @@
 use anyhow::{anyhow, Result};
 use keyring::Error as KeyringError;
 
-const KEYRING_SERVICE: &str = "adw-network";
+const KEYRING_SERVICE: &str = "windoesnot-network";
 const KEYRING_USERNAME: &str = "hotspot-password";
 
 pub fn store_hotspot_password(password: &str) -> Result<()> {

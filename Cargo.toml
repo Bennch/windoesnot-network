@@ -1,8 +1,8 @@
 [package]
-name = "adwaita-network"
-version = "1.0.2"
+name = "windoesnot-network"
+version = "0.1.0"
 edition = "2021"
-description = "Modern network management application for GNOME"
+description = "WinDoesNot Network, based on Adwaita Network"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/PlayRood32/adw-network"
 homepage = "https://github.com/PlayRood32/adw-network"
@@ -25,7 +25,7 @@ env_logger = "0.11.10"
 chrono = "0.4.44"
 tempfile = "3.27.0"
 hostname = "0.4.2"
-keyring = "3.6.3"
+keyring = { version = "3.6.3", features = ["sync-secret-service"] }
 # * #47, #55 — v5 added for deterministic connection UUIDs and unique nft temp file names.
 futures = "0.3"
 uuid = { version = "1.23.0", features = ["serde", "v4", "v5"] }
@@ -50,5 +50,5 @@ name = "adwaita_network"
 path = "src/lib.rs"
 
 [[bin]]
-name = "adwaita-network"
+name = "windoesnot-network"
 path = "src/main.rs"

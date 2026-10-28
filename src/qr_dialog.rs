@@ -91,7 +91,7 @@ pub async fn show_qr_dialog(
             content.set_margin_start(12);
             content.set_margin_end(12);
 
-            let subtitle = gtk4::Label::new(Some("Scan this QR code to connect to the network"));
+            let subtitle = gtk4::Label::new(Some(crate::desktop::tr("Scan this QR code to connect to the network")));
             subtitle.set_xalign(0.0);
             subtitle.set_opacity(0.7);
             content.append(&subtitle);
@@ -107,7 +107,7 @@ pub async fn show_qr_dialog(
 
                 let copy_btn = gtk4::Button::builder()
                     .icon_name("edit-copy-symbolic")
-                    .tooltip_text("Copy password")
+                    .tooltip_text(crate::desktop::tr("Copy password"))
                     .css_classes(vec!["flat".to_string()])
                     .build();
 
@@ -128,7 +128,7 @@ pub async fn show_qr_dialog(
             buttons.set_margin_top(12);
 
             let close_btn = gtk4::Button::builder()
-                .label("Close")
+                .label(crate::desktop::tr("Close"))
                 .css_classes(vec!["flat".to_string()])
                 .build();
             let dialog_close = dialog.clone();
