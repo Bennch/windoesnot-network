@@ -821,10 +821,7 @@ impl AdwNetworkWindow {
         let header = adw::HeaderBar::builder().title_widget(&title_box).build();
         header.set_centering_policy(adw::CenteringPolicy::Strict);
 
-        // Restore default window close control.
-        header.set_decoration_layout(Some(":close"));
-
-        // Keep settings near the close button on the right.
+        // Keep settings on the right, matching Store/Settings.
         let right_controls = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
         right_controls.append(&menu_button);
 

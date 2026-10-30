@@ -26,6 +26,8 @@ pub struct DesktopPrefs {
     pub accent: Option<String>,
     pub dark: Option<bool>,
     pub language: Option<Language>,
+    /// Corner radius in px, same setting Settings/Store use everywhere else.
+    pub radius: Option<u32>,
 }
 
 pub fn settings_path() -> PathBuf {
@@ -54,6 +56,7 @@ fn parse_prefs(text: &str) -> DesktopPrefs {
             "accentColor" if is_hex_colour(value) => prefs.accent = Some(value.to_ascii_lowercase()),
             "darkMode" => prefs.dark = Some(value != "false"),
             "uiLanguage" => prefs.language = language_from(value),
+            "borderRadius" => prefs.radius = value.parse().ok(),
             _ => {}
         }
     }
@@ -204,6 +207,10 @@ pub fn setup() {
             ("#202020","#161616","#171717","#3a3a3a","#ffffff","#2a2a2a")
         } else { ("#f2f2f2","#e6e6e6","#f5f5f5","#d0d0d0","#1a1a1a","#c8c8c8") };
         let accent = prefs.accent.unwrap_or_else(|| DEFAULT_ACCENT.into());
+        // Same default and same value everywhere as Settings' own borderRadius
+        // (Settings.qml: `property int borderRadius: 10`, applied uniformly to
+        // cards, rows and buttons there too).
+        let radius = prefs.radius.unwrap_or(10);
         let css = format!(r#"
 @define-color window_bg_color {bg}; @define-color window_fg_color {fg};
 @define-color view_bg_color {bg}; @define-color view_fg_color {fg};
@@ -220,11 +227,11 @@ headerbar {{ background:{bg}; box-shadow:none; border-bottom:1px solid {border};
 .wdn-brand {{ padding:28px 16px 24px; }}
 .wdn-brand label {{ font-size:18px; font-weight:700; }}
 .wdn-navigation {{ background:transparent; padding:0 8px; }}
-.wdn-navigation row {{ min-height:44px; margin:3px 0; border-radius:6px; padding:0 14px; }}
+.wdn-navigation row {{ min-height:44px; margin:3px 0; border-radius:{radius}px; padding:0 14px; }}
 .wdn-navigation row:selected {{ background:{selected}; color:{fg}; box-shadow:inset 3px 0 {accent}; }}
-.boxed-list {{ border-radius:6px; border:1px solid {border}; background:{card}; box-shadow:none; }}
-.card {{ border-radius:6px; background:{card}; border-color:{border}; box-shadow:none; }}
-button {{ border-radius:6px; box-shadow:none; }}
+.boxed-list {{ border-radius:{radius}px; border:1px solid {border}; background:{card}; box-shadow:none; }}
+.card {{ border-radius:{radius}px; background:{card}; border-color:{border}; box-shadow:none; }}
+button {{ border-radius:{radius}px; box-shadow:none; }}
 button.suggested-action {{ background:{accent}; color:{accent_fg}; }}
 "#, accent_fg=accent_foreground(&accent));
         provider.load_from_data(&css);
