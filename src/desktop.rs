@@ -224,20 +224,67 @@ pub fn setup() {
 window, .background {{ background-color:{bg}; color:{fg}; font-family:Sans; font-size:14px; }}
 headerbar {{ background:{bg}; box-shadow:none; border-bottom:1px solid {border}; }}
 .wdn-sidebar, .sidebar {{ background:{sidebar}; }}
-.wdn-brand {{ padding:28px 16px 24px; }}
+.wdn-brand {{ padding:40px 20px 30px; }}
 .wdn-brand label {{ font-size:18px; font-weight:700; }}
-.wdn-navigation {{ background:transparent; padding:0 8px; }}
-.wdn-navigation row {{ min-height:44px; margin:3px 0; border-radius:{radius}px; padding:0 14px; }}
-.wdn-navigation row:selected {{ background:{selected}; color:{fg}; box-shadow:inset 3px 0 {accent}; }}
-.boxed-list {{ border-radius:{radius}px; border:1px solid {border}; background:{card}; box-shadow:none; }}
+.wdn-navigation {{ background:transparent; border:none; padding:0 10px; }}
+.wdn-navigation row {{ min-height:45px; margin:0 0 8px 0; padding:0; border-radius:6px; background:transparent; box-shadow:none; outline:none; }}
+.wdn-navigation row:hover {{ background:alpha({fg},0.07); }}
+.wdn-navigation row:selected, .wdn-navigation row:selected:hover {{ background:{selected}; color:{fg}; box-shadow:none; }}
+.wdn-nav-row {{ padding:0 10px 0 4px; }}
+.wdn-nav-indicator {{ border-radius:2px; background:transparent; }}
+.wdn-navigation row:selected .wdn-nav-indicator {{ background:{accent}; }}
+/* Only the rows are cards; no second frame around the whole list. */
+.boxed-list {{ border:none; background:transparent; box-shadow:none; }}
+.boxed-list row {{ border-radius:{radius}px; }}
 .card {{ border-radius:{radius}px; background:{card}; border-color:{border}; box-shadow:none; }}
 button {{ border-radius:{radius}px; box-shadow:none; }}
+/* The value shown inside a drop-down row is a one-row list. The card rule for
+   `.boxed-list row` also hit that inner row and framed it. */
+row.combo listview.inline, row.combo listview.inline > row, row.combo listview.inline row {{
+  margin:0; padding:0; min-height:0; border:none; border-radius:0;
+  background:transparent; background-color:transparent; box-shadow:none; outline:none; }}
+row.combo listview.inline row:hover {{ background:transparent; }}
+/* Popups (drop-down lists, context menus): plain rows, not the cards used in pages. */
+/* The window rule above also paints the popup's outer node (it has the class
+   "background"): that was the rectangle behind the menu. Only `contents` is drawn. */
+popover, popover.background, popover.menu, popover.background.menu {{ background:transparent; background-color:transparent; border:none; box-shadow:none; padding:0; }}
+popover > contents {{ background:{card}; border:1px solid {border}; border-radius:{radius}px; padding:4px; box-shadow:0 6px 24px alpha(black,0.25); }}
+popover contents > *, popover listview, popover list, popover scrolledwindow, popover scrolledwindow > *, popover box {{ background:transparent; background-color:transparent; border:none; box-shadow:none; outline:none; }}
+popover row, popover .boxed-list row, popover listview > row, popover list > row {{
+  margin:2px 0; padding:0 10px; min-height:36px; border-radius:6px;
+  background:transparent; border:none; box-shadow:none; outline:none; color:{fg}; }}
+popover row:hover {{ background:alpha({fg},0.08); }}
+popover row:selected, popover row:selected:hover {{ background:alpha({accent},0.22); color:{fg}; }}
+popover row label {{ margin:0; }}
+popover.menu button {{ border-radius:6px; padding:8px 12px; }}
+popover.menu button:hover {{ background:alpha({fg},0.08); }}
 button.suggested-action {{ background:{accent}; color:{accent_fg}; }}
 "#, accent_fg=accent_foreground(&accent));
         provider.load_from_data(&css);
     };
     refresh();
     watch(refresh);
+}
+
+/// Sidebar entry as in the Store: accent bar (selected only), icon, label.
+pub fn nav_row(icon_name: &str, title: &str) -> gtk::ListBoxRow {
+    let content = gtk::Box::new(gtk::Orientation::Horizontal, 12);
+    content.add_css_class("wdn-nav-row");
+    let indicator = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    indicator.add_css_class("wdn-nav-indicator");
+    indicator.set_size_request(3, 22);
+    indicator.set_valign(gtk::Align::Center);
+    let icon = gtk::Image::from_icon_name(icon_name);
+    icon.set_pixel_size(20);
+    let label = gtk::Label::new(Some(title));
+    label.set_xalign(0.0);
+    label.set_hexpand(true);
+    content.append(&indicator);
+    content.append(&icon);
+    content.append(&label);
+    let row = gtk::ListBoxRow::new();
+    row.set_child(Some(&content));
+    row
 }
 
 pub fn brand(title: &str) -> gtk::Box {
@@ -273,7 +320,7 @@ pub fn tr(english: &'static str) -> &'static str {
     match english {
         "Bluetooth unavailable" => "Bluetooth nicht verfügbar",
         "No Bluetooth adapter or service is available. Check that your adapter is connected and Bluetooth is enabled." => "Kein Bluetooth-Adapter oder Dienst verfügbar. Prüfe, ob dein Adapter angeschlossen und Bluetooth eingeschaltet ist.",
-        "Wi-Fi" => "WLAN", "Network" => "Netzwerk", "Devices" => "Geräte", "Profiles" => "Profile",
+        "Turn on Ethernet to manage wired connections" => "Schalte Ethernet ein, um kabelgebundene Verbindungen zu verwalten", "Wi-Fi" => "WLAN", "Network" => "Netzwerk", "Devices" => "Geräte", "Profiles" => "Profile",
         "Settings" => "Einstellungen", "About" => "Über", "Appearance" => "Darstellung",
         "System" => "System", "Light" => "Hell", "Dark" => "Dunkel", "Cancel" => "Abbrechen",
         "Close" => "Schließen", "Apply" => "Übernehmen", "Apply Changes" => "Änderungen übernehmen",
@@ -322,6 +369,27 @@ pub fn tr(english: &'static str) -> &'static str {
         "Blocked sites" => "Gesperrte Webseiten",
         "Bring back the safe default modules and order" => "Die Standardbereiche und ihre Reihenfolge wiederherstellen",
         "Channel" => "Kanal",
+        "Excellent connection (75%+)" => "Sehr gute Verbindung (75 %+)",
+        "Good connection (50-74%)" => "Gute Verbindung (50–74 %)",
+        "Fair connection (25-49%)" => "Mittlere Verbindung (25–49 %)",
+        "Weak connection (10-24%)" => "Schwache Verbindung (10–24 %)",
+        "Very weak connection (&lt;10%)" => "Sehr schwache Verbindung (&lt;10 %)",
+        "Very weak connection (<10%)" => "Sehr schwache Verbindung (<10 %)",
+        "Search networks..." => "Netzwerke suchen …",
+        "Saved network" => "Gespeichertes Netzwerk",
+        "System Keyring (Recommended)" => "System-Schlüsselbund (empfohlen)",
+        "NetworkManager keyring" => "NetworkManager-Schlüsselbund",
+        "Plain JSON (Legacy)" => "Klartext-JSON (veraltet)",
+        "Where hotspot passwords are stored" => "Wo Hotspot-Passwörter gespeichert werden",
+        "(Highly insecure! Debug only)" => "(Sehr unsicher! Nur zur Fehlersuche)",
+        "Never reset" => "Nie zurücksetzen",
+        "Custom" => "Benutzerdefiniert",
+        "Automatic (smart default)" => "Automatisch (empfohlen)",
+        "All modules" => "Alle Bereiche",
+        "Wi-Fi + Profiles" => "WLAN + Profile",
+        "Ethernet + Profiles" => "Ethernet + Profile",
+        "Reset daily at 00:00" => "Täglich um 00:00 zurücksetzen",
+        "Not connected" => "Nicht verbunden",
         "Checking for modems..." => "Modems werden gesucht …",
         "Checking for tc and nftables..." => "Unterstützung für Datenlimits wird geprüft …",
         "Choose which modules are shown in the top navigation" => "Wähle die sichtbaren Bereiche",

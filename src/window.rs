@@ -96,22 +96,14 @@ impl ModuleLayoutState {
     }
 
     fn default_visible(availability: ModuleAvailability) -> ModuleFlags {
-        if availability.ethernet {
-            ModuleFlags {
-                ethernet: true,
-                wifi: false,
-                hotspot: false,
-                devices: false,
-                profiles: true,
-            }
-        } else {
-            ModuleFlags {
-                ethernet: false,
-                wifi: availability.wifi,
-                hotspot: false,
-                devices: false,
-                profiles: true,
-            }
+        // Show every connection type the machine really has; an Ethernet port
+        // without a cable must not hide Wi-Fi.
+        ModuleFlags {
+            ethernet: availability.ethernet,
+            wifi: availability.wifi,
+            hotspot: false,
+            devices: false,
+            profiles: true,
         }
     }
 
@@ -804,29 +796,10 @@ impl AdwNetworkWindow {
         // Main navigation lives in the Store-style left sidebar.
         nav_stack.set_visible(false);
 
-        let menu_button = gtk4::MenuButton::builder()
-            .icon_name("emblem-system-symbolic")
-            .tooltip_text(crate::desktop::tr("Settings & About"))
-            .build();
-        menu_button.add_css_class("menu-button");
-        menu_button.add_css_class("header-mini-button");
-        menu_button.set_size_request(16, 16);
-        menu_button.set_valign(gtk4::Align::Center);
-
-        let menu = gio::Menu::new();
-        menu.append(Some("Settings"), Some("app.settings"));
-        menu.append(Some("About"), Some("app.about"));
-        menu_button.set_menu_model(Some(&menu));
-
         let header = adw::HeaderBar::builder().title_widget(&title_box).build();
         header.set_centering_policy(adw::CenteringPolicy::Strict);
 
-        // Keep settings on the right, matching Store/Settings.
-        let right_controls = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
-        right_controls.append(&menu_button);
-
-        // Add buttons to the header
-        header.pack_end(&right_controls);
+        // Settings live in the sidebar; no second entry in the header.
 
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&header);
@@ -849,10 +822,7 @@ impl AdwNetworkWindow {
             ("devices", "Devices", "computer-symbolic"),
             ("profiles", "Profiles", "network-workgroup-symbolic"),
         ] {
-            let content = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
-            content.append(&gtk4::Image::from_icon_name(icon));
-            content.append(&gtk4::Label::new(Some(crate::desktop::tr(title))));
-            let row = gtk4::ListBoxRow::new(); row.set_child(Some(&content));
+            let row = crate::desktop::nav_row(icon, crate::desktop::tr(title));
             navigation.append(&row);
             // Keep hardware/module visibility in sync with the upstream pages.
             if let Some(child) = view_stack.child_by_name(name) {
@@ -873,10 +843,20 @@ impl AdwNetworkWindow {
             }
         });
         sidebar.append(&navigation);
-        let settings_button = gtk4::Button::with_label(crate::desktop::tr("Settings"));
-        settings_button.set_action_name(Some("app.settings"));
-        settings_button.set_margin_start(16); settings_button.set_margin_end(16);
-        sidebar.append(&settings_button);
+        // Settings sits at the bottom as a row of its own, like the other entries.
+        let spacer = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        spacer.set_vexpand(true);
+        sidebar.append(&spacer);
+        let footer = gtk4::ListBox::new();
+        footer.add_css_class("wdn-navigation");
+        footer.set_selection_mode(gtk4::SelectionMode::None);
+        footer.set_activate_on_single_click(true);
+        footer.set_margin_bottom(16);
+        footer.append(&crate::desktop::nav_row("emblem-system-symbolic", crate::desktop::tr("Settings")));
+        footer.connect_row_activated(|list, _| {
+            let _ = list.activate_action("app.settings", None);
+        });
+        sidebar.append(&footer);
         layout.append(&sidebar);
         toolbar_view.set_hexpand(true); toolbar_view.set_vexpand(true);
         layout.append(&toolbar_view);
@@ -1273,18 +1253,20 @@ impl AdwNetworkWindow {
         let group = adw::PreferencesGroup::new();
         group.set_title(crate::desktop::tr("Appearance"));
         group.add(&theme_combo);
+        // The theme follows the system (see Settings); an empty heading would just confuse.
+        group.set_visible(false);
 
         let storage_group = adw::PreferencesGroup::new();
         storage_group.set_title(crate::desktop::tr("Hotspot Password"));
 
         let storage_model = gtk4::StringList::new(
             &[
-                "System Keyring (Recommended)",
-                "NetworkManager keyring",
-                "Plain JSON (Legacy)",
+                crate::desktop::tr("System Keyring (Recommended)"),
+                crate::desktop::tr("NetworkManager keyring"),
+                crate::desktop::tr("Plain JSON (Legacy)"),
             ][..],
         );
-        let storage_safe_subtitle = "Where hotspot passwords are stored";
+        let storage_safe_subtitle = crate::desktop::tr("Where hotspot passwords are stored");
         let storage_row = adw::ComboRow::builder()
             .title(crate::desktop::tr("Hotspot password storage"))
             .subtitle(storage_safe_subtitle)
@@ -1298,7 +1280,7 @@ impl AdwNetworkWindow {
             config::HotspotPasswordStorage::PlainJson
         );
         storage_row.set_subtitle(if plain_json_selected {
-            "(Highly insecure! Debug only)"
+            crate::desktop::tr("(Highly insecure! Debug only)")
         } else {
             storage_safe_subtitle
         });
@@ -1390,7 +1372,7 @@ impl AdwNetworkWindow {
 
         storage_group.add(&storage_row);
 
-        let quota_model = gtk4::StringList::new(&["Never reset", "Reset daily at 00:00"][..]);
+        let quota_model = gtk4::StringList::new(&[crate::desktop::tr("Never reset"), crate::desktop::tr("Reset daily at 00:00")][..]);
         let quota_reset_row = adw::ComboRow::builder()
             .title(crate::desktop::tr("Hotspot quota reset"))
             .subtitle(crate::desktop::tr("Applies to time and upload/download quotas for device rules"))
@@ -1545,11 +1527,11 @@ impl AdwNetworkWindow {
 
         let module_preset_model = gtk4::StringList::new(
             &[
-                "Automatic (smart default)",
-                "All modules",
-                "Wi-Fi + Profiles",
-                "Ethernet + Profiles",
-                "Custom",
+                crate::desktop::tr("Automatic (smart default)"),
+                crate::desktop::tr("All modules"),
+                crate::desktop::tr("Wi-Fi + Profiles"),
+                crate::desktop::tr("Ethernet + Profiles"),
+                crate::desktop::tr("Custom"),
             ][..],
         );
         let module_preset_row = adw::ComboRow::builder()
@@ -1926,16 +1908,45 @@ impl AdwNetworkWindow {
         page.add(&modules_group);
         page.add(&reset_group);
 
-        let settings = adw::PreferencesDialog::builder().title(crate::desktop::tr("Settings")).build();
-        settings.add(&page);
+        let settings = adw::Dialog::builder().title(crate::desktop::tr("Settings")).build();
+        let settings_header = adw::HeaderBar::new();
+        settings_header.set_show_end_title_buttons(false);
+        let close_button = gtk4::Button::from_icon_name("window-close-symbolic");
+        close_button.add_css_class("flat");
+        close_button.set_tooltip_text(Some(crate::desktop::tr("Close")));
+        let dialog_for_close = settings.downgrade();
+        close_button.connect_clicked(move |_| {
+            if let Some(dialog) = dialog_for_close.upgrade() {
+                dialog.close();
+            }
+        });
+        settings_header.pack_end(&close_button);
+        let settings_view = adw::ToolbarView::new();
+        settings_view.add_top_bar(&settings_header);
+        settings_view.set_content(Some(&page));
+        settings.set_child(Some(&settings_view));
         // * Keep settings dialog responsive to main window resize.
         common::make_dialog_responsive(
-            settings.upcast_ref::<adw::Dialog>(),
+            &settings,
             Some(window.upcast_ref::<gtk4::Window>()),
             720,
             560,
         );
         settings.present(Some(window));
+        // Clicking outside the card closes the dialog (Escape already does).
+        let outside_click = gtk4::GestureClick::new();
+        outside_click.set_propagation_phase(gtk4::PropagationPhase::Capture);
+        let dialog_weak = settings.downgrade();
+        outside_click.connect_pressed(move |_, _, x, y| {
+            let Some(dialog) = dialog_weak.upgrade() else { return };
+            let Some(card) = dialog.child() else { return };
+            if let Some(bounds) = card.compute_bounds(&dialog) {
+                if !bounds.contains_point(&gtk4::graphene::Point::new(x as f32, y as f32)) {
+                    dialog.close();
+                }
+            }
+        });
+        settings.add_controller(outside_click);
         if show_plain_json_warning_on_load {
             // * Warn when insecure plain-JSON storage is already active on settings load.
             Self::show_plain_json_warning_dialog(window.upcast_ref::<gtk4::Window>());

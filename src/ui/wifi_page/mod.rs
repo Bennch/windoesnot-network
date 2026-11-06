@@ -85,7 +85,7 @@ impl WifiPage {
 
         // Search Entry
         let search_entry = gtk4::SearchEntry::builder()
-            .placeholder_text("Search networks...")
+            .placeholder_text(crate::desktop::tr("Search networks..."))
             .build();
         search_entry.add_css_class("search-entry");
 
@@ -195,7 +195,8 @@ impl WifiPage {
         connected_card.append(&connected_subtitle);
 
         let details_revealer = gtk4::Revealer::new();
-        details_revealer.set_transition_type(gtk4::RevealerTransitionType::Crossfade);
+        // SlideDown collapses the space when hidden; Crossfade left an empty block.
+        details_revealer.set_transition_type(gtk4::RevealerTransitionType::SlideDown);
         let expand_connected_details = app_state.expand_connected_details();
         details_revealer.set_reveal_child(expand_connected_details);
 
@@ -924,8 +925,8 @@ impl WifiPage {
         // * set_text — no markup, use plain text version to avoid Pango "<" parse errors
         let signal_text = get_signal_strength_text_plain(network.signal);
         let subtitle = format!(
-            "Connected • {} • {} • Channel {}",
-            signal_text, network.band, network.channel
+            "{} • {} • {} • {} {}",
+            crate::desktop::tr("Connected"), signal_text, network.band, crate::desktop::tr("Channel"), network.channel
         );
         self.connected_subtitle.set_text(&subtitle);
         if self.app_state.expand_connected_details() {
@@ -989,18 +990,18 @@ impl WifiPage {
 
         // Subtitle with details
         let subtitle = if network.band == "Saved" {
-            "Saved network".to_string()
+            crate::desktop::tr("Saved network").to_string()
         } else {
             let signal_text = get_signal_strength_text(network.signal);
             let channel_text = if network.channel == 0 {
-                "Channel —".to_string()
+                format!("{} —", crate::desktop::tr("Channel"))
             } else {
-                format!("Channel {}", network.channel)
+                format!("{} {}", crate::desktop::tr("Channel"), network.channel)
             };
             if network.connected {
                 format!(
-                    "Connected • {} • {} • {}",
-                    signal_text, network.band, channel_text
+                    "{} • {} • {} • {}",
+                    crate::desktop::tr("Connected"), signal_text, network.band, channel_text
                 )
             } else {
                 format!("{} • {} • {}", signal_text, network.band, channel_text)
@@ -1693,9 +1694,9 @@ impl WifiPage {
         ssid_label.add_css_class("title-2");
 
         let status_text = if network.connected {
-            "Connected"
+            crate::desktop::tr("Connected")
         } else {
-            "Not connected"
+            crate::desktop::tr("Not connected")
         };
         let status_label = gtk4::Label::new(Some(status_text));
         status_label.set_opacity(0.7);

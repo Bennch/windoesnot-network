@@ -335,7 +335,7 @@ impl EthernetPage {
         self.empty_state.set_visible(true);
         self.empty_state.set_title(crate::desktop::tr("Ethernet is off"));
         self.empty_state
-            .set_description(Some("Turn on Ethernet to manage wired connections"));
+            .set_description(Some(crate::desktop::tr("Turn on Ethernet to manage wired connections")));
     }
 
     fn populate_connections(&self, connections: Vec<Connection>) {

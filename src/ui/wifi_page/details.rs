@@ -29,7 +29,7 @@ pub(super) fn get_signal_strength_text(signal: u8) -> String {
         // ! "&lt;" not "<" — bare < breaks Pango markup parser in adw subtitles
         "Very weak connection (&lt;10%)"
     };
-    format!("{} ({}%)", quality, signal)
+    format!("{} ({}%)", crate::desktop::tr(quality), signal)
 }
 
 // * Plain-text version for set_text() widgets (no Pango markup — use real "<")
@@ -45,7 +45,7 @@ pub(super) fn get_signal_strength_text_plain(signal: u8) -> String {
     } else {
         "Very weak connection (<10%)"
     };
-    format!("{} ({}%)", quality, signal)
+    format!("{} ({}%)", crate::desktop::tr(quality), signal)
 }
 
 pub(super) fn invalid_ip_entries(entries: &[String]) -> Vec<String> {
